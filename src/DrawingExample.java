@@ -1,21 +1,21 @@
+ import java.applet.Applet;
+ import java.awt.*;
+ import java.awt.event.*;
+ import java.awt.image.BufferedImage;
+ import javax.media.j3d.*;
+ import javax.swing.*;
+ import javax.vecmath.*;
+ import com.sun.j3d.utils.applet.MainFrame;
+ import com.sun.j3d.utils.behaviors.mouse.MouseRotate;
+ import com.sun.j3d.utils.geometry.*;
+ import com.sun.j3d.utils.geometry.Box;
+ import com.sun.j3d.utils.image.TextureLoader;
+ import com.sun.j3d.utils.pickfast.PickCanvas;
+ import com.sun.j3d.utils.universe.*;
 
-        import java.applet.Applet;
-        import java.awt.*;
-        import java.awt.event.*;
-        import java.awt.image.BufferedImage;
-        import javax.media.j3d.*;
-        import javax.vecmath.*;
-        import com.sun.j3d.utils.applet.MainFrame;
-        import com.sun.j3d.utils.behaviors.mouse.MouseRotate;
-        import com.sun.j3d.utils.geometry.*;
-        import com.sun.j3d.utils.image.TextureLoader;
-        import com.sun.j3d.utils.pickfast.PickCanvas;
-        import com.sun.j3d.utils.universe.*;
-
-public class DrawingExample extends Applet implements MouseListener, MouseMotionListener {
+public class DrawingExample extends JPanel implements MouseListener, MouseMotionListener {
 
     private static final long serialVersionUID = 1L;
-    private MainFrame frame;
     private Box box;
     private int imageHeight = 256;
     private int imageWidth = 256;
@@ -36,12 +36,17 @@ public class DrawingExample extends Applet implements MouseListener, MouseMotion
     public static void main(String[] args) {
         System.setProperty("sun.awt.noerasebackground", "true");
         DrawingExample object = new DrawingExample();
-        object.frame = new MainFrame(object, args, object.imageWidth, object.imageHeight);
+        JFrame frame = new JFrame();
+        frame.setDefaultCloseOperation(3);
+        frame.add(object);
         object.validate();
+        object.startDrawing();
+        frame.pack();
+        frame.setVisible(true);
     }
 
-    public void init() {
-        startDrawing();
+    public DrawingExample() {
+        setPreferredSize(new Dimension(imageWidth,imageHeight));
     }
 
     public Point3d getPosition(MouseEvent event) {
@@ -277,7 +282,7 @@ public class DrawingExample extends Applet implements MouseListener, MouseMotion
             double x = (0.5 + intersectionPoint.x) * imageWidth;
             double y = (0.5 - intersectionPoint.y) * imageHeight;
             Graphics2D g = (Graphics2D) frontImage.getGraphics();
-            g.setColor( Color.BLACK);
+            g.setColor( Color.WHITE);
             g.setStroke(new BasicStroke(3));
             int iX = (int)(x + .5);
             int iY = (int)(y + .5);
