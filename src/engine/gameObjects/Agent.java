@@ -1,4 +1,4 @@
-package engine;
+package engine.gameObjects;
 
 import com.sun.j3d.utils.geometry.Box;
 import com.sun.j3d.utils.geometry.ColorCube;
@@ -50,8 +50,8 @@ public class Agent extends TransformGroup
     }
     public static void loadMesh(Component component)
     {
-        red=cubeMesh(component,"res\\red.jpg");
-        blue=cubeMesh(component,"res\\blue.jpg");
+        red=cubeMesh(component,"res\\red.png");
+        blue=cubeMesh(component,"res\\blue.png");
     }
     public static Shape3D cubeMesh(Component component,String fileName)
     {

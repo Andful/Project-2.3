@@ -8,5 +8,5 @@ import engine.input.special.Mouse;
  */
 public interface IGameLogic<AgentId>
 {
-    public void update(GameEngine<AgentId> ge, Mouse mouse, Keyboard keyboard);
+    public void update(PositionModifier<AgentId> ge, Mouse mouse, Keyboard keyboard);
 }
