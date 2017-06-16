@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class GameEngine<AgentId> extends Canvas3D
 {
-    private IGameLogic<AgentId> gl;
+    protected volatile IGameLogic<AgentId> gl;
 
     private SimpleUniverse universe;
     private Camera camera=new Camera();

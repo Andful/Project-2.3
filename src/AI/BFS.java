@@ -8,9 +8,6 @@ import java.util.*;
 
 import static java.lang.Math.*;
 
-/**
- * Created by Andrea Nardi on 6/15/2017.
- */
 public class BFS<AgentId> implements PathFindingAlgorithm<AgentId>
 {
     private final static int EMPTY=Integer.MAX_VALUE-2;
@@ -94,8 +91,83 @@ public class BFS<AgentId> implements PathFindingAlgorithm<AgentId>
 
     }
 
-    private Queue<Agent> getHeadPriorityQueue(Array3D<Integer> distance, List<Agent<AgentId>> agents)
+    private Vector3i getArrivePosition(Agent<AgentId> head, Array3D<Integer> distance, Array3D<Integer> obstacles)
     {
+        Vector3i result=null;
+        int clousestDistance=Integer.MAX_VALUE;
+        {
+            Vector3i toUse=new Vector3i(head.pos.x,head.pos.y+1,head.pos.z);
+            if(obstacles.isInBound(toUse) && obstacles.get(toUse)==EMPTY && clousestDistance>distance.get(toUse))
+            {
+                result=toUse;
+                clousestDistance=distance.get(toUse);
+            }
+        }
+        for(int i=-1;i<=1;i+=2)
+        {
+            {
+                Vector3i toUse=new Vector3i(head.pos.x+i,head.pos.y+1,head.pos.z);
+                while(obstacles.isInBound(new Vector3i(toUse.x,toUse.y-1,toUse.z)) && obstacles.get(new Vector3i(toUse.x,toUse.y-1,toUse.z))==EMPTY)
+                {
+                    toUse.y--;
+                }
+                if(obstacles.isInBound(toUse) && obstacles.get(toUse)==EMPTY && clousestDistance>distance.get(toUse))
+                {
+                    result=toUse;
+                    clousestDistance=distance.get(toUse);
+                }
+            }
+            {
+                Vector3i toUse=new Vector3i(head.pos.x,head.pos.y+1,head.pos.z+i);
+                while(obstacles.isInBound(new Vector3i(toUse.x,toUse.y-1,toUse.z)) && obstacles.get(new Vector3i(toUse.x,toUse.y-1,toUse.z))==EMPTY)
+                {
+                    toUse.y--;
+                }
+                if(obstacles.isInBound(toUse) && obstacles.get(toUse)==EMPTY && clousestDistance>distance.get(toUse))
+                {
+                    result=toUse;
+                    clousestDistance=distance.get(toUse);
+                }
+            }
+        }
+        if(result==null)
+        {
+            throw new RuntimeException("arrive point is null");
+        }
+        return result;
+    }
+
+    public Queue<Agent> getHeadPriorityQueue(Array3D<Integer> distance,List<Agent> agents)
+    {
+        LinkedList<Agent> result=new LinkedList<>();
+        for(Agent agent:agents)
+        {
+            ListIterator<Agent> iter=result.listIterator();
+            while(true)
+            {
+                if(!iter.hasNext())
+                {
+                    iter.add(agent);
+                    break;
+                }
+                else
+                {
+                    Agent toCompare=iter.next();
+                    if(agent.pos.equals(new Vector3i(2,0,3)) && toCompare.pos.equals(new Vector3i(1,0,3)))
+                    {
+                        System.out.println("error is here");
+                    }
+                    if(distance.get(agent.pos)<distance.get(toCompare.pos))
+                    {
+                        iter.previous();
+                        iter.add(agent);
+                        break;
+                    }
+                }
+            }
+
+        }
+        return result;
     }
 
     private Array3D<Integer> generateDistanceArray(Vector3i size, Array3D<Integer> blocks, Vector3i end)
