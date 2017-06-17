@@ -15,6 +15,7 @@ public class MonteCarlo<E> {
         this.terminalState = terminalState;
     }
 
+    /*
     public void treeSearch(){
 
         current.set(initialState);
@@ -32,6 +33,7 @@ public class MonteCarlo<E> {
             current.set(findNodeMaxUCB1());
         }
     }
+    */
 
     public void rollout(){
 
@@ -40,22 +42,35 @@ public class MonteCarlo<E> {
         }
     }
 
+    public double simulate(){
+        //TO DO
+        //returns the value
+        return 0;
+    }
+
     public boolean isLeafNode(Node node){
         return node.getChildren().isEmpty();
     }
 
+
+    /*
     private List<Node> addNewStates(){
 
         List<Node> newStates = new ArrayList<>();
 
         for(int i=0; i<current.actions.size(); i++){
-            Node node = new Node(current);
-            node.set(node.takeAction(current.actions.get(i)));
-            newStates.add(node);
+           for(int j=0; j<current.actions.get(i).size(); j++){
+               Node node = new Node(current);
+               node.set(node.takeAction(current.actions.get(i).get(j)));
+               newStates.add(node);
+           }
+
         }
 
         return newStates;
     }
+    */
+
 
     private Node findNodeMaxUCB1(){
 

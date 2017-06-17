@@ -14,8 +14,7 @@ public class Node {
     protected double ucb1;
     protected List<Node> children;
     protected Node parent;
-    protected boolean terminal; //true if the node is a terminal state
-    protected List<Vector3f> actions;
+    protected List<List<Vector3f>> actions;
 
     public Node(Node node){
         this.state = node.state;
@@ -24,17 +23,16 @@ public class Node {
         this.ucb1 = node.ucb1;
         this.children = node.children;
         this.parent = node.parent;
-        this.terminal = node.terminal;
         this.actions = node.actions;
     }
 
     public Node(List<Vector3f> state){
         this.state = state;
-        //actions = getAvailableActions(); TO DO
+        actions = getPossibleActions();
         this.children = new LinkedList<>();
     }
 
-    public Node(List<Vector3f> state, List<Vector3f> actions){
+    public Node(List<Vector3f> state, List<List<Vector3f>> actions){
         this.state = state;
         //actions = getAvailableActions(); TO DO
         this.actions = actions;
@@ -48,22 +46,19 @@ public class Node {
         this.ucb1 = node.ucb1;
         this.children = node.children;
         this.parent = node.parent;
-        this.terminal = node.terminal;
         this.actions = node.actions;
     }
 
     //returns the state after an action has been applied
-    public Node takeAction(Vector3f action){
 
-        List<Vector3f> nState = new ArrayList<>(state);
-        for(int i=0; i<state.size(); i++){
-            nState.get(i).add(action);
-        }
 
-        Node newState = new Node(nState);
-
-        return newState;
+    //Returns the new state after an action is taken
+    //Action is defined as the simultaneous movement of the agents
+    //Needs to be checked so that they are no clashing!
+    public Node takeAction(){
+        return null;
     }
+
 
     public Node(List<Vector3f> state, Node parent){
         this.state = state;
@@ -76,8 +71,112 @@ public class Node {
         this.children = children;
     }
 
-    public void getAvailableActions() { //TO DO
+    public List<List<Vector3f>> getPossibleActions() {
+
+        //each position in the list represents a list of possible actions for the agent in position with same index of agents list
+        List<List<Vector3f>> actions = new ArrayList<>();
+
+        for(int i=0; i<state.size(); i++){
+            boolean[] possibilities = new boolean[6];
+            possibilities[0] = top(state.get(i));
+            possibilities[1] = bottom(state.get(i));
+            possibilities[2] = front(state.get(i));
+            possibilities[3] = rear(state.get(i));
+            possibilities[4] = left(state.get(i));
+            possibilities[5] = right(state.get(i));
+
+
+
+            if (possibilities[0] == true){
+                actions.add(new ArrayList<>());
+                continue;
+            }
+
+            List<Vector3f> possibleMovements = new ArrayList<>();
+            if(possibilities[2]==false)
+                possibleMovements.add(new Vector3f(0,0,1));
+            if(possibilities[3] == false)
+                possibleMovements.add(new Vector3f(0,0,-1));
+            if(possibilities[4] == false)
+                possibleMovements.add(new Vector3f(-1,0,0));
+            if(possibilities[5] == false)
+                possibleMovements.add(new Vector3f(1,0,0));
+            //CAN TAKE MORE POSSIBLE ACTIONS
+
+            actions.add(possibleMovements);
+
+        }
+
+        return actions;
     }
+
+    private boolean top(Vector3f currentAgent){
+
+        for(int i=0; i<state.size(); i++){
+            if(state.get(i).y - currentAgent.y == 1){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean bottom(Vector3f currentAgent){
+
+        for(int i=0; i<state.size(); i++){
+            if(currentAgent.y - state.get(i).y == 1){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean front(Vector3f currentAgent){
+
+        for(int i=0; i<state.size(); i++){
+            if(state.get(i).z - currentAgent.z == 1){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean rear(Vector3f currentAgent){
+
+        for(int i=0; i<state.size(); i++){
+            if(currentAgent.z - state.get(i).z == 1){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean left(Vector3f currentAgent){
+
+        for(int i=0; i<state.size(); i++){
+            if(currentAgent.y - state.get(i).y == 1){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean right(Vector3f currentAgent){
+
+        for(int i=0; i<state.size(); i++){
+            if(state.get(i).y - currentAgent.y == 1){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
 
     //calculates and returns the ucb1 value
     public double getUCB1(int totalVisits){
@@ -132,11 +231,7 @@ public class Node {
         return state.toString();
     }
 
-    public void setTerminal(boolean terminal){
-        this.terminal = terminal;
-    }
-
-    public void setActions(List<Vector3f> actions){
+    public void setActions(List<List<Vector3f>> actions){
         this.actions = actions;
     }
 }
