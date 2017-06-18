@@ -8,9 +8,9 @@ import java.util.List;
  */
 public class Node {
 
-    protected List<Vector3f> state; //current state
+    protected List<Vector3f> state; //current state, positions of agents
     protected int visits; //Number of visits to this node
-    protected double value; //Score
+    protected double value; //heuristic + f(x) for stuck together agents
     protected double ucb1;
     protected List<Node> children;
     protected Node parent;
@@ -34,7 +34,7 @@ public class Node {
 
     public Node(List<Vector3f> state, List<List<Vector3f>> actions){
         this.state = state;
-        //actions = getAvailableActions(); TO DO
+        actions = getPossibleActions();
         this.actions = actions;
         this.children = new LinkedList<>();
     }
@@ -56,7 +56,17 @@ public class Node {
     //Action is defined as the simultaneous movement of the agents
     //Needs to be checked so that they are no clashing!
     public Node takeAction(){
-        return null;
+
+        Node newState = new Node(state);
+
+        for(int i=0; i<actions.size(); i++){
+
+            int j = (int) (Math.random()*actions.get(i).size());
+
+            newState.actions.get(i).add(actions.get(i).get(j));
+        }
+
+        return newState;
     }
 
 
@@ -93,16 +103,20 @@ public class Node {
             }
 
             List<Vector3f> possibleMovements = new ArrayList<>();
-            if(possibilities[2]==false)
-                possibleMovements.add(new Vector3f(0,0,1));
-            if(possibilities[3] == false)
-                possibleMovements.add(new Vector3f(0,0,-1));
-            if(possibilities[4] == false)
-                possibleMovements.add(new Vector3f(-1,0,0));
-            if(possibilities[5] == false)
-                possibleMovements.add(new Vector3f(1,0,0));
-            //CAN TAKE MORE POSSIBLE ACTIONS
 
+            //if there is nothing below, then it is on the ground, then it can do the following movements
+            if (possibilities[1] == false) {
+
+                if (possibilities[2] == false)
+                    possibleMovements.add(new Vector3f(0, 0, 1));
+                if (possibilities[3] == false)
+                    possibleMovements.add(new Vector3f(0, 0, -1));
+                if (possibilities[4] == false)
+                    possibleMovements.add(new Vector3f(-1, 0, 0));
+                if (possibilities[5] == false)
+                    possibleMovements.add(new Vector3f(1, 0, 0));
+
+            }
             actions.add(possibleMovements);
 
         }
