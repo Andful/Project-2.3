@@ -6,6 +6,7 @@ import javax.vecmath.Vector3f;
 public class Node {
 	
 	private List<Vector3f> agents;
+	private List<Vector3f> endConfiguration;
 	private List<List<Vector3f>> actions;
 	private double ucb1; //value + sqrt(lnN/n) where N= total visits and n = visits of this node
 	private double value; // 1 divided by sum of manhattan heuristic of each agent
@@ -14,12 +15,27 @@ public class Node {
 	private List<Node> children;
 	private Node parent;
 	
-	public Node(List<Vector3f> agents){
+	public Node(List<Vector3f> agents, List<Vector3f> endConfiguration){
 		this.agents = agents;
+		this.endConfiguration = endConfiguration;
 		this.actions = getAvailableActions();
+		this.value = calculateValue();
 	}
 	
-	//returns ucb1 and also sets the value for the node
+	public double calculateValue(){
+		
+		double sumOfHeuristics = 0;
+		
+		for(int i=0; i<agents.size(); i++){
+			sumOfHeuristics += Math.abs(endConfiguration.get(i).x - agents.get(i).x);
+			sumOfHeuristics += Math.abs(endConfiguration.get(i).y - agents.get(i).y); 
+			sumOfHeuristics += Math.abs(endConfiguration.get(i).z - agents.get(i).z); 
+		}
+		
+		return 1/sumOfHeuristics;
+	}
+	
+	/*returns ucb1 and also sets the value for the node
 	public double getUCB1(int totalVisits){
 		
 		if(this.visits == 0){
@@ -31,6 +47,7 @@ public class Node {
 			return ucb1;
 		}
 	}
+	*/
 	
 	public void addChild(Node child){
 		children.add(child);
@@ -54,89 +71,75 @@ public class Node {
 					
 					if(checkFront(agents.get(i))){
 						
-						if(checkTopFront(agents.get(i))){
-							//does not move
-						} else {
+						if(!checkTopFront(agents.get(i))){
 							Vector3f action = new Vector3f(0,1,1);
 							actions.add(action);
-						}
+						} 
+						
 					} else {
 						
 						if(checkBottomFront(agents.get(i))){
 							Vector3f action = new Vector3f(0,0,1);
 							actions.add(action);
-						} else {
-							//does not move
-						}
-					}
-					
+						} 
+					}					
 					
 					if(checkRear(agents.get(i))){
 						
-						if(checkTopRear(agents.get(i))){
-							
-						} else {
+						if(!checkTopRear(agents.get(i))){
 							Vector3f action = new Vector3f(0,1,-1);
 							actions.add(action);
-						}						
+						} 
+						
 					} else {
 						
 						if(checkBottomRear(agents.get(i))){
 							Vector3f action = new Vector3f(0,0,-1);
 							actions.add(action);
-						} else {
-							//does not move
 						}
+						
 					}
 					
 					if(checkLeft(agents.get(i))){
 						
-						if(checkTopLeft(agents.get(i))){
-							
-						} else {
+						if(!checkTopLeft(agents.get(i))){
 							Vector3f action = new Vector3f(-1,1,0);
 							actions.add(action);
 						}
+						
 					} else {
 						
 						if(checkBottomLeft(agents.get(i))){
 							Vector3f action = new Vector3f(-1,0,0);
 							actions.add(action);
-						} else {
-							//does not move
-						}
+						} 
 					}
 					
 					
 					if(checkRight(agents.get(i))){
 						
-						if(checkTopRight(agents.get(i))){
-							//does not move
-						} else {
+						if(!checkTopRight(agents.get(i))){
 							Vector3f action = new Vector3f(1,1,0);
 							actions.add(action);
-						}						
+						}					
 						
 					} else {
 						
 						if(checkBottomRight(agents.get(i))){
 							Vector3f action = new Vector3f(1,-1,0);
 							actions.add(action);
-						} else {
-							//does not move
-						}
+						} 
 					}
 					
 				} else {
 					
 					if(checkFront(agents.get(i))){
 						
-						if(checkTopFront(agents.get(i))){
-							//can't move
-						} else {
+						if(!checkTopFront(agents.get(i))){
 							Vector3f action = new Vector3f(0,1,1);
 							actions.add(action);
-						}
+						} 
+						
 					} else {
 						Vector3f action = new Vector3f(0,0,1);
 						actions.add(action);
@@ -144,12 +147,11 @@ public class Node {
 					
 					if(checkRear(agents.get(i))){
 						
-						if(checkTopRear(agents.get(i))){
-							//can't move
-						} else {
+						if(!checkTopRear(agents.get(i))){
 							Vector3f action = new Vector3f(0,0,-1);
 							actions.add(action);
-						}
+						} 
+						
 					} else {
 						Vector3f action = new Vector3f(0,0,-1);
 						actions.add(action);
@@ -157,12 +159,11 @@ public class Node {
 					
 					if(checkLeft(agents.get(i))){
 						
-						if(checkTopLeft(agents.get(i))){
-							//can't move
-						} else {
+						if(!checkTopLeft(agents.get(i))){
 							Vector3f action = new Vector3f(-1,1,0);
 							actions.add(action);
-						}
+						} 
+						
 					} else {
 						Vector3f action = new Vector3f(-1,0,0);
 						actions.add(action);
@@ -170,12 +171,11 @@ public class Node {
 					
 					if(checkRight(agents.get(i))){
 						
-						if(checkTopRight(agents.get(i))){
-							//can't move
-						} else {
+						if(!checkTopRight(agents.get(i))){
 							Vector3f action = new Vector3f(1,1,0);
 							actions.add(action);
-						}
+						} 
+						
 					} else {
 						Vector3f action = new Vector3f(1,0,0);
 						actions.add(action);
@@ -189,6 +189,7 @@ public class Node {
 		return possibleActions;
 	}
 	
+	//okay
 	private boolean checkTop(Vector3f agent){
 		
 		for(int i=0; i<agents.size(); i++){
@@ -205,6 +206,7 @@ public class Node {
 		return false;
 	}
 	
+	//okay
 	private boolean checkBottom(Vector3f agent){
 		
 		for(int i=0; i<agents.size(); i++){
@@ -221,6 +223,7 @@ public class Node {
 		return false;
 	}
 	
+	//okay
 	private boolean checkRight(Vector3f agent){
 		
 		for(int i=0; i<agents.size(); i++){
@@ -237,6 +240,7 @@ public class Node {
 		return false;
 	}
 	
+	//okay
 	private boolean checkLeft(Vector3f agent){
 		
 		for(int i=0; i<agents.size(); i++){
@@ -253,7 +257,7 @@ public class Node {
 		return false;
 	}
 	
-	
+	//okay
 	private boolean checkTopFront(Vector3f agent){
 		
 		for(int i=0; i<agents.size(); i++){
@@ -270,6 +274,7 @@ public class Node {
 		return false;
 	}
 	
+	//okay
 	private boolean checkTopRear(Vector3f agent){
 		
 		for(int i=0; i<agents.size(); i++){
@@ -286,6 +291,7 @@ public class Node {
 		return false;
 	}
 	
+	//okay
 	private boolean checkTopRight(Vector3f agent){
 		
 		for(int i=0; i<agents.size(); i++){
@@ -302,6 +308,7 @@ public class Node {
 		return false;
 	}
 	
+	//okay
 	private boolean checkTopLeft(Vector3f agent){
 		
 		for(int i=0; i<agents.size(); i++){
@@ -318,6 +325,7 @@ public class Node {
 		return false;
 	}
 	
+	//okay
 	private boolean checkFront(Vector3f agent){
 		
 		for(int i=0; i<agents.size(); i++){
@@ -333,6 +341,7 @@ public class Node {
 		return false;
 	}
 	
+	//okay
 	private boolean checkRear(Vector3f agent){
 		
 		for(int i=0; i<agents.size(); i++){
@@ -348,6 +357,7 @@ public class Node {
 		return false;
 	}
 	
+	//okay
 	private boolean checkBottomFront(Vector3f agent){
 		
 		for(int i=0; i<agents.size(); i++){
@@ -363,6 +373,7 @@ public class Node {
 		return false;
 	}
 	
+	//okay
 	private boolean checkBottomRear(Vector3f agent){
 		
 		for(int i=0; i<agents.size(); i++){
@@ -378,6 +389,7 @@ public class Node {
 		return false;
 	}
 	
+	//okay
 	private boolean checkBottomLeft(Vector3f agent){
 		
 		for(int i=0; i<agents.size(); i++){
@@ -393,6 +405,7 @@ public class Node {
 		return false;
 	}
 	
+	//okay
 	private boolean checkBottomRight(Vector3f agent){
 		
 		for(int i=0; i<agents.size(); i++){
