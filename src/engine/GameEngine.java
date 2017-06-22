@@ -30,9 +30,10 @@ public class GameEngine<AgentId> extends Canvas3D
     private Mouse mouse=new Mouse();
     private Keyboard keyboard=new Keyboard();
 
-    private Map<AgentId, Agent> agentPosition=new HashMap<>();
+    protected Map<AgentId, Agent> agentPosition=new HashMap<>();
+    protected List<Vector3f> obstacle;
 
-    private PositionModifier<AgentId> pm=new PositionModifier<AgentId>()
+    public PositionModifier<AgentId> pm=new PositionModifier<AgentId>()
     {
         public void setPosition(AgentId aid,Vector3f v)
         {
@@ -53,10 +54,11 @@ public class GameEngine<AgentId> extends Canvas3D
         Agent.loadMesh(this);
         Obstacle.loadMesh(this);
         this.gl=gl;
+        this.obstacle=obstacle;
         setPreferredSize(new Dimension(640,480));
         universe = new SimpleUniverse(this);
         BranchGroup group = new BranchGroup();
-        camera.addChild(new Floor(new Vector2f(10,2),this));
+        camera.addChild(new Floor(new Vector2f(levelDimension.x,levelDimension.y),this));
         group.addChild(camera);
         {
             Iterator<AgentId> aid=agents.iterator();
@@ -88,9 +90,9 @@ public class GameEngine<AgentId> extends Canvas3D
 
         new Timer((int)Math.round(1000.0 / 60.0),(ActionEvent e)->update()).start();
     }
-    private  void update()
+    protected  void update()
     {
-        Vector3f toAdd=new Vector3f((keyboard.right()?1:0)+(keyboard.left()?-1:0),(keyboard.up()?1:0)+(keyboard.down()?-1:0),(keyboard.back()?1:0)+(keyboard.front()?-1:0));
+        Vector3f toAdd=new Vector3f((float)Math.cos(camera.rotation.y)*((keyboard.right()?1:0)+(keyboard.left()?-1:0))+(float)Math.sin(camera.rotation.y)*((keyboard.front()?1:0)+(keyboard.back()?-1:0)),(keyboard.up()?1:0)+(keyboard.down()?-1:0),(float)Math.sin(camera.rotation.y)*((keyboard.right()?1:0)+(keyboard.left()?-1:0))-(float)Math.cos(camera.rotation.y)*((keyboard.front()?1:0)+(keyboard.back()?-1:0)));
         toAdd.scale(0.1f);
         camera.position.add(toAdd);
 

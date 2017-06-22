@@ -7,24 +7,25 @@ import javax.vecmath.Vector3f;
 import java.util.*;
 
 import static java.lang.Math.*;
+import static AI.PathFindingAlgorithm.*;
 
-public class BFS<AgentId> implements PathFindingAlgorithm<AgentId>
+public class BFS implements PathFindingAlgorithm
 {
     private final static int EMPTY=Integer.MAX_VALUE-2;
     private final static int OBSTACLE=Integer.MAX_VALUE-1;
     private final static int AGENT=Integer.MAX_VALUE;
-    public static class Agent<AgentId>
+    public static class Agent<Integer>
     {
-        Agent(AgentId id, Vector3i pos)
+        Agent(Integer id, Vector3i pos)
         {
             this.id=id;
             this.pos=pos;
         }
-        AgentId id;
+        Integer id;
         Vector3i pos;
     }
     @Override
-    public void compute(Vector3f _size,List<AgentId> agentIds, List<Vector3f> _startPosition, List<Vector3f> _endPosition,List<Vector3f> _obstacle,List<Movement<AgentId>> result)
+    public void compute(Vector3f _size,List<Vector3f> _startPosition,List<Vector3f> _endPosition,List<Vector3f> _obstacle,List<List<Movement>> result)
     {
         Vector3i size=new Vector3i(round(_size.x),round(_size.y),round(_size.z));
         List<Vector3i> startPosition = new ArrayList<>(_startPosition.size());
@@ -42,19 +43,24 @@ public class BFS<AgentId> implements PathFindingAlgorithm<AgentId>
         {
             endPosition.add(new Vector3i(round(vec.x),round(vec.y),round(vec.z)));
         }
-        List<Agent<AgentId>> agents=new ArrayList<>(agentIds.size());
+        List<Agent<Integer>> agents=new ArrayList<>(_startPosition.size());
         {
-            Iterator<AgentId> idsIter=agentIds.iterator();
             Iterator<Vector3i> posIter=startPosition.iterator();
+            int i=0;
             do
             {
-                AgentId ids=idsIter.next();
                 Vector3i vec=posIter.next();
-                agents.add(new Agent<>(ids,vec));
+                agents.add(new Agent<>(i,vec));
+                i++;
             }
-            while(idsIter.hasNext());
+            while(posIter.hasNext());
         }
 
+        List<Agent<Integer>> movableAgents = new LinkedList<>();
+        for(Agent agent:agents)
+        {
+            movableAgents.add(agent);
+        }
         Array3D<Integer> blocks= generateBlockArray(size,startPosition,obstacle);
         for(Vector3i end:endPosition)
         {
@@ -91,7 +97,132 @@ public class BFS<AgentId> implements PathFindingAlgorithm<AgentId>
 
     }
 
-    private Vector3i getArrivePosition(Agent<AgentId> head, Array3D<Integer> distance, Array3D<Integer> obstacles)
+    public boolean pathFindSingleAgent(Agent<Integer> agent,Vector3i to,Array3D<Integer> obstacles,List<List<Movement>> result)
+    {
+        obstacles.set(agent.pos,EMPTY);
+        Array3D<Vector3i> cameFrom=new Array3D<Vector3i>(obstacles.size());
+        Queue<Vector3i> first=new LinkedList<>();
+        Queue<Vector3i> second=new LinkedList<>();
+        first.add(agent.pos);
+        cameFrom.set(agent.pos,new Vector3i(-1,-1,-1));
+        here:
+        do
+        {
+            do
+            {
+                Vector3i current=first.remove();
+                if(hasAdiacentAgent(current,obstacles) && obstacles.get(new Vector3i(current.x,current.y+1,current.z))==EMPTY)
+                {
+                    for (int i = -1; i <= 1; i += 2)
+                    {
+                        {
+                            Vector3i toUse = new Vector3i(current.x + i, current.y, current.z);
+                            if (obstacles.isInBound(toUse) &&
+                                    obstacles.get(toUse) == AGENT)
+                            {
+                                toUse.y++;
+                            }
+                            while (obstacles.isInBound(new Vector3i(toUse.x, toUse.y - 1, toUse.z)) &&
+                                    obstacles.get(new Vector3i(toUse.x, toUse.y - 1, toUse.z)) == EMPTY)
+                            {
+                                toUse.y--;
+                            }
+                            if(obstacles.isInBound(toUse) && obstacles.get(toUse)==EMPTY && cameFrom.get(toUse)==null)
+                            {
+                                second.add(toUse);
+                                cameFrom.set(toUse,current);
+                                if(toUse.equals(to))
+                                {
+                                    break here;
+                                }
+                            }
+                        }
+                        {
+                            Vector3i toUse = new Vector3i(current.x, current.y, current.z +i);
+                            if (obstacles.isInBound(toUse) &&
+                                    obstacles.get(toUse) == AGENT)
+                            {
+                                toUse.y++;
+                            }
+                            while (obstacles.isInBound(new Vector3i(toUse.x, toUse.y - 1, toUse.z)) &&
+                                    obstacles.get(new Vector3i(toUse.x, toUse.y - 1, toUse.z)) == EMPTY)
+                            {
+                                toUse.y--;
+                            }
+                            if(obstacles.isInBound(toUse) && obstacles.get(toUse)==EMPTY && cameFrom.get(toUse)==null)
+                            {
+                                second.add(toUse);
+                                cameFrom.set(toUse,current);
+                                if(toUse.equals(to))
+                                {
+                                    break here;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            while(!first.isEmpty());
+            first=second;
+            second=new LinkedList<>();
+        }
+        while(!first.isEmpty());
+        if(cameFrom.get(to)!=null)
+        {
+            List<Vector3i> path=new LinkedList<>();
+            Vector3i temp=to;
+            while(temp.x!=-1 || temp.y!=-1 || temp.z!=-1)
+            {
+                path.add(temp);
+                temp=cameFrom.get(temp);
+            }
+            Vector3i oldPos=agent.pos;
+            for(int i=path.size()-2;i>=0;i--)
+            {
+                List<Movement> a=new LinkedList<>();
+                Vector3i newPos=path.get(i);
+                a.add(new Movement(agent.id,new Vector3f(newPos.x,newPos.y,newPos.z)));
+                result.add(a);
+                oldPos=path.get(i);
+            }
+            obstacles.set(to,AGENT);
+            agent.pos=to;
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    public boolean hasAdiacentAgent(Vector3i agent,Array3D<Integer> obstacles)
+    {
+        for(int i=-1;i<=1;i+=2)
+        {
+            {
+                Vector3i toUse=new Vector3i(agent.x+i,agent.y,agent.z);
+                if(obstacles.isInBound(toUse) && obstacles.get(toUse)==AGENT)
+                {
+                    return true;
+                }
+            }
+            {
+                Vector3i toUse=new Vector3i(agent.x,agent.y+i,agent.z);
+                if(obstacles.isInBound(toUse) && obstacles.get(toUse)==AGENT)
+                {
+                    return true;
+                }
+            }
+            {
+                Vector3i toUse=new Vector3i(agent.x,agent.y,agent.z+i);
+                if(obstacles.isInBound(toUse) && obstacles.get(toUse)==AGENT)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private Vector3i getArrivePosition(Agent<Integer> head, Array3D<Integer> distance, Array3D<Integer> obstacles)
     {
         Vector3i result=null;
         int clousestDistance=Integer.MAX_VALUE;
@@ -137,7 +268,7 @@ public class BFS<AgentId> implements PathFindingAlgorithm<AgentId>
         return result;
     }
 
-    public Queue<Agent> getHeadPriorityQueue(Array3D<Integer> distance,List<Agent> agents)
+    public Queue<Agent> getHeadPriorityQueue(Array3D<Integer> distance,List<Agent<Integer>> agents)
     {
         LinkedList<Agent> result=new LinkedList<>();
         for(Agent agent:agents)
@@ -158,6 +289,45 @@ public class BFS<AgentId> implements PathFindingAlgorithm<AgentId>
                         System.out.println("error is here");
                     }
                     if(distance.get(agent.pos)<distance.get(toCompare.pos))
+                    {
+                        iter.previous();
+                        iter.add(agent);
+                        break;
+                    }
+                }
+            }
+
+        }
+        return result;
+    }
+
+    public Queue<Agent> getTailPriorityQueue(Array3D<Integer> distance,List<Agent<Integer>> agents,Agent head)
+    {
+        LinkedList<Agent> result=new LinkedList<>();
+        for(Agent agent:agents)
+        {
+            if(agent.pos.equals(head))
+            {
+                result.add(agent);
+            }
+            ListIterator<Agent> iter=result.listIterator();
+            while(true)
+            {
+                if(!iter.hasNext())
+                {
+                    iter.add(agent);
+                    break;
+                }
+                else
+                {
+                    Agent toCompare=iter.next();
+                    if(toCompare.pos.equals(head))
+                    {
+                        iter.previous();
+                        iter.add(agent);
+                        break;
+                    }
+                    else if(distance.get(agent.pos)>distance.get(toCompare.pos))
                     {
                         iter.previous();
                         iter.add(agent);

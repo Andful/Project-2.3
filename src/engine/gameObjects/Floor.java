@@ -16,7 +16,7 @@ public class Floor extends Shape3D
 {
     public Floor(Vector2f size,Component component)
     {
-        super(getVertices(size),Agent.getAppearance(component,"res//obstacle.jpg"));
+        super(getVertices(size),Agent.getAppearance(component,"res//obstacle.png"));
     }
     private static IndexedQuadArray getVertices(Vector2f size)
     {
