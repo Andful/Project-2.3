@@ -41,7 +41,7 @@ public class BFS implements PathFindingAlgorithm
         List<Vector3i> obstacle = new ArrayList<>(_obstacle.size());
         for(Vector3f vec:_obstacle)
         {
-            endPosition.add(new Vector3i(round(vec.x),round(vec.y),round(vec.z)));
+            obstacle.add(new Vector3i(round(vec.x),round(vec.y),round(vec.z)));
         }
         List<Agent<Integer>> agents=new ArrayList<>(_startPosition.size());
         {

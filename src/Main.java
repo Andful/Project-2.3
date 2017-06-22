@@ -1,4 +1,5 @@
 import AI.BFS;
+import AI.GoUp;
 import AI.PathFindingAlgorithm;
 import GUI.SerialModifier;
 import Util.EnvironmentFloat;
@@ -70,6 +71,6 @@ public class Main
     }
     public static void main(String[] args) throws Exception
     {
-        new Main().run(new BFS(),"res\\levels\\1\\");
+        new Main().run(new GoUp(),"res\\levels\\1\\");
     }
 }

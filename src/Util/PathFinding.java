@@ -13,6 +13,7 @@ public class PathFinding<Node>
     public static interface FunctionSet<Node>
     {
         List<WeightedNode<Node>> expand(Node node);
+        boolean isEnd(Node node);
     }
     public static class WeightedNode<Node>
     {
@@ -36,7 +37,7 @@ public class PathFinding<Node>
         public double weight;
         public Node node;
     }
-    List<Node> compute(Node start,Node end,FunctionSet<Node> fs)
+    public List<Node> compute(Node start,FunctionSet<Node> fs)
     {
         class TheComparator implements Comparator<WeightedNode>
         {
@@ -57,7 +58,7 @@ public class PathFinding<Node>
         while(!pq.isEmpty())
         {
             WeightedNode<Node> current=pq.remove();
-            if(current.node.equals(end))
+            if(fs.isEnd(current.node))
             {
                 LinkedList<Node> result=new LinkedList<>();
                 WeightedNode<Node> temp=current;
