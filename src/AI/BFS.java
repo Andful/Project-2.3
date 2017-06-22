@@ -11,9 +11,9 @@ import static AI.PathFindingAlgorithm.*;
 
 public class BFS implements PathFindingAlgorithm
 {
-    private final static int EMPTY=Integer.MAX_VALUE-2;
-    private final static int OBSTACLE=Integer.MAX_VALUE-1;
-    private final static int AGENT=Integer.MAX_VALUE;
+    public final static int EMPTY=Integer.MAX_VALUE-2;
+    public final static int OBSTACLE=Integer.MAX_VALUE-1;
+    public final static int AGENT=Integer.MAX_VALUE;
     public static class Agent<Integer>
     {
         Agent(Integer id, Vector3i pos)
@@ -268,7 +268,7 @@ public class BFS implements PathFindingAlgorithm
         return result;
     }
 
-    public Queue<Agent> getHeadPriorityQueue(Array3D<Integer> distance,List<Agent<Integer>> agents)
+    public static Queue<Agent> getHeadPriorityQueue(Array3D<Integer> distance,List<Agent<Integer>> agents)
     {
         LinkedList<Agent> result=new LinkedList<>();
         for(Agent agent:agents)
@@ -340,7 +340,7 @@ public class BFS implements PathFindingAlgorithm
         return result;
     }
 
-    private Array3D<Integer> generateDistanceArray(Vector3i size, Array3D<Integer> blocks, Vector3i end)
+    public static Array3D<Integer> generateDistanceArray(Vector3i size, Array3D<Integer> blocks, Vector3i end)
     {
         Array3D<Integer> result= new Array3D<Integer>(size,Integer.MAX_VALUE);
         Queue<Vector3i> first=new LinkedList<>();
@@ -363,7 +363,7 @@ public class BFS implements PathFindingAlgorithm
         return result;
     }
 
-    private void bfsOneStep(Queue<Vector3i>toAdd,Vector3i v,Array3D<Integer> result,Array3D<Integer> blocks,int length)
+    private static void bfsOneStep(Queue<Vector3i>toAdd,Vector3i v,Array3D<Integer> result,Array3D<Integer> blocks,int length)
     {
         if(v.y>0 && blocks.get(new Vector3i(v.x,v.y-1,v.z))!=OBSTACLE)
         {

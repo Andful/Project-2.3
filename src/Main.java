@@ -25,7 +25,11 @@ public class Main
     SerialModifier sm;
     public void run() throws Exception
     {
-        EnvironmentFloat enviroment=new EnvironmentFloat(new java.io.File("res\\levels\\1\\"));
+        new Main().run(new BFS(),"res\\levels\\1\\");
+    }
+    public void run(PathFindingAlgorithm pfa,String enviromentPath) throws Exception
+    {
+        EnvironmentFloat enviroment=new EnvironmentFloat(new java.io.File(enviromentPath));
         JFrame frame= new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Core core;
@@ -33,42 +37,39 @@ public class Main
         {
             {
                 new Thread(){public void run()
-                    {
-                        pfa.compute(enviroment.environmentSize,enviroment.agentStartConfigurations,enviroment.agentEndConfigurations,enviroment.obstaclesPositions,result);
+                {
+                    pfa.compute(enviroment.environmentSize,enviroment.agentStartConfigurations,enviroment.agentEndConfigurations,enviroment.obstaclesPositions,result);
 
-                    }
+                }
                 }.start();
             }
             public void update(engine.PositionModifier<Integer> ge, Mouse mouse, Keyboard keyboard)
             {
-                if(sm!=null)
+                sm.update();
+                while(count<result.size() && mouse.getRight())
                 {
-                    sm.update();
-                    while(count<result.size() && mouse.getRight())
-                    {
-                        List<PathFindingAlgorithm.Movement> movment=result.get(count);
-
-                        sm.setPosition(movment);
-                        count++;
-                    }
+                    List<PathFindingAlgorithm.Movement> movment = result.get(count);
+                    sm.setPosition(movment);
+                    count++;
                 }
             }
         }, new ArrayList<Integer>()
         {
             {
-                add(0);
-                add(1);
-                add(2);
-                add(3);
+                for(int i=0;i<enviroment.agentStartConfigurations.size();i++)
+                {
+                    add(i);
+                }
             }
         },
                 enviroment.agentStartConfigurations, enviroment.obstaclesPositions,new Vector2f(enviroment.environmentSize.x,enviroment.environmentSize.z)));
         frame.pack();
         frame.setVisible(true);
         sm=new SerialModifier(core);
+        core.start();
     }
     public static void main(String[] args) throws Exception
     {
-        new Main().run();
+        new Main().run(new BFS(),"res\\levels\\1\\");
     }
 }

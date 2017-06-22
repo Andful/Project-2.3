@@ -87,7 +87,10 @@ public class GameEngine<AgentId> extends Canvas3D
         addMouseMotionListener(mouse);
         requestFocus();
         addKeyListener(keyboard);
-
+    }
+    public void start()
+    {
+        System.out.println("timer started");
         new Timer((int)Math.round(1000.0 / 60.0),(ActionEvent e)->update()).start();
     }
     protected  void update()
