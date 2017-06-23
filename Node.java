@@ -1,115 +1,201 @@
-package src.AI;
-
-import javax.vecmath.Vector3f;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Savvas on 6/22/2017.
- */
+import org.joml.Vector3i;
+
 public class Node {
+	
+	private List<Vector3i> agentConfiguration;
+	private List<Vector3i> endConfiguration;
+	private List<Vector3i> obstacleConfiguration;
+	private List<List<Vector3i>> actions;
+	
+	public static void main(String[] args){
 
-    public List<Vector3f> startConfiguration;
-    public List<Vector3f> endConfiguration;
-    public List<List<Vector3f>> actions;
-    public double value; //1/heuristic
-    public static final double TOL = 0.0001;
+        List<Vector3i> endConfiguration = new ArrayList<>();
+        endConfiguration.add(new Vector3i(0,0,4));
+		
+		List<Vector3i> startConfiguration = new ArrayList<>();
+        startConfiguration.add(new Vector3i(1,0,0));
+        startConfiguration.add(new Vector3i(0,0,0));
 
-    public Node(List<Vector3f> startConfiguration, List<Vector3f> endConfiguration){
-        this.startConfiguration = startConfiguration;
-        this.endConfiguration = endConfiguration;
-        this.actions = getAvailableActions();
-        this.value = calculateValue();
-    }
+        List<Vector3i> obstacleConfiguration = new ArrayList<>();
+       // obstacleConfiguration.add(new Vector3i(0,0,0));
+       // obstacleConfiguration.add(new Vector3i(0,0,0));
+        
+        Node node = new Node(startConfiguration,endConfiguration,obstacleConfiguration);
+        
+       System.out.println(node.checkLeft(node.getAgentConfiguration().get(0)));
+       System.out.println(node.checkLeftObstacle(node.getAgentConfiguration().get(0)));
+	}
+	
+	public Node(List<Vector3i> startConfiguration, List<Vector3i> endConfiguration, List<Vector3i> obstacleConfiguration){
+		this.agentConfiguration = startConfiguration;
+		this.endConfiguration = endConfiguration;
+		this.obstacleConfiguration = obstacleConfiguration;
+	}
+	
+	//works
+	private boolean checkFront(Vector3i agent){
+		
+		for(int i=0; i<agentConfiguration.size(); i++){
+			
+			if((Math.abs(agentConfiguration.get(i).y - agent.y) == 0) && (Math.abs(agentConfiguration.get(i).x - agent.x) ==0)){
+				
+				if(agentConfiguration.get(i).z - agent.z == 1){
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	//works
+	private boolean checkFrontObstacle(Vector3i agent){
+		
+		for(int i=0; i<obstacleConfiguration.size(); i++){
+			
+			if((Math.abs(obstacleConfiguration.get(i).y - agent.y) == 0) && (Math.abs(obstacleConfiguration.get(i).x - agent.x) ==0)){
+				
+				if(obstacleConfiguration.get(i).z - agent.z == 1){
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	//works
+	private boolean checkRear(Vector3i agent){
+		
+		for(int i=0; i<agentConfiguration.size(); i++){
+			
+			if((Math.abs(agentConfiguration.get(i).y - agent.y) == 0) && (Math.abs(agentConfiguration.get(i).x - agent.x) ==0)){
+				
+				if(agent.z - agentConfiguration.get(i).z == 1){
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
 
-    private List<List<Vector3f>> getAvailableActions(){
+	//works
+	private boolean checkRearObstacle(Vector3i agent){
+		
+		for(int i=0; i<obstacleConfiguration.size(); i++){
+			
+			if((Math.abs(obstacleConfiguration.get(i).y - agent.y) == 0) && (Math.abs(obstacleConfiguration.get(i).x - agent.x) ==0)){
+				
+				if(agent.z - obstacleConfiguration.get(i).z == 1){
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	//works
+	private boolean checkRight(Vector3i agent){
+		
+		for(int i=0; i<agentConfiguration.size(); i++){
+			
+			if((Math.abs(agentConfiguration.get(i).y -agent.y) == 0) && (Math.abs(agentConfiguration.get(i).z - agent.z) == 0)){
+				
+				if(agentConfiguration.get(i).x - agent.x == 1){
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	//works
+	private boolean checkRightObstacle(Vector3i agent){
+		
+		for(int i=0; i<obstacleConfiguration.size(); i++){
+			
+			if((Math.abs(obstacleConfiguration.get(i).y -agent.y) == 0) && (Math.abs(obstacleConfiguration.get(i).z - agent.z) == 0)){
+				
+				if(obstacleConfiguration.get(i).x - agent.x == 1){
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	//works
+	private boolean checkLeft(Vector3i agent){
+		
+		for(int i=0; i<agentConfiguration.size(); i++){
+			
+			if((Math.abs(agentConfiguration.get(i).y -agent.y) == 0) && (Math.abs(agentConfiguration.get(i).z - agent.z) == 0)){
+				
+				if(agent.x - agentConfiguration.get(i).x == 1){
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	//works
+	private boolean checkLeftObstacle(Vector3i agent){
+		
+		for(int i=0; i<obstacleConfiguration.size(); i++){
+			
+			if((Math.abs(obstacleConfiguration.get(i).y -agent.y) == 0) && (Math.abs(obstacleConfiguration.get(i).z - agent.z) == 0)){
+				
+				if(agent.x - obstacleConfiguration.get(i).x == 1){
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	
+	public List<Vector3i> getAgentConfiguration() {
+		return agentConfiguration;
+	}
 
-        List<List<Vector3f>> availableActions = new ArrayList<>();
+	public void setAgentConfiguration(List<Vector3i> agentConfiguration) {
+		this.agentConfiguration = agentConfiguration;
+	}
 
-        for(int i=0; i<startConfiguration.size(); i++){
-            if(!checkFront(startConfiguration.get(i))){
-                availableActions.get(i).add(new Vector3f(0,0,1));
-            }
-            if(!checkRear(startConfiguration.get(i))){
-                availableActions.get(i).add(new Vector3f(0,0,-1));
-            }
-            if(!checkRight(startConfiguration.get(i))){
-                availableActions.get(i).add(new Vector3f(1,0,1));
-            }
-            if(!checkLeft(startConfiguration.get(i))){
-                availableActions.get(i).add(new Vector3f(-1,0,0));
-            }
-        }
+	public List<Vector3i> getEndConfiguration() {
+		return endConfiguration;
+	}
 
-        return availableActions;
-    }
+	public void setEndConfiguration(List<Vector3i> endConfiguration) {
+		this.endConfiguration = endConfiguration;
+	}
 
-    private double calculateValue(){
+	public List<Vector3i> getObstacleConfiguration() {
+		return obstacleConfiguration;
+	}
 
-        double heuristicValue = Math.abs(startConfiguration.get(0).x - endConfiguration.get(0).x)
-                + Math.abs(startConfiguration.get(0).y - endConfiguration.get(0).y)
-                + Math.abs(startConfiguration.get(0).z - endConfiguration.get(0).z);
+	public void setObstacleConfiguration(List<Vector3i> obstacleConfiguration) {
+		this.obstacleConfiguration = obstacleConfiguration;
+	}
 
-        return 1/heuristicValue;
-    }
+	public List<List<Vector3i>> getActions() {
+		return actions;
+	}
 
-    private boolean checkFront(Vector3f agent){
+	public void setActions(List<List<Vector3i>> actions) {
+		this.actions = actions;
+	}
+	
+	
+	
 
-        for(int i=0; i<startConfiguration.size(); i++){
-
-            if((Math.abs((agent.x - startConfiguration.get(i).x)) < TOL) && (Math.abs(agent.y - startConfiguration.get(i).y)<TOL)){
-
-                if(((startConfiguration.get(i).z - agent.z)> 1.0f - TOL) && ((startConfiguration.get(i).z - agent.z)< 1.0f - TOL)){
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private boolean checkRear(Vector3f agent){
-
-        for(int i=0; i<startConfiguration.size(); i++){
-
-            if((Math.abs((agent.x - startConfiguration.get(i).x)) < TOL) && (Math.abs(agent.y - startConfiguration.get(i).y)<TOL)){
-
-                if(((agent.z - startConfiguration.get(i).z)> 1.0f - TOL) && ((agent.z - startConfiguration.get(i).z)< 1.0f - TOL)){
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private boolean checkRight(Vector3f agent){
-
-        for(int i=0; i<startConfiguration.size(); i++){
-
-            if((Math.abs((agent.z - startConfiguration.get(i).z)) < TOL) && (Math.abs(agent.y - startConfiguration.get(i).y)<TOL)){
-
-                if(((startConfiguration.get(i).x - agent.x)> 1.0f - TOL) && ((startConfiguration.get(i).x - agent.x)< 1.0f - TOL)){
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private boolean checkLeft(Vector3f agent){
-
-        for(int i=0; i<startConfiguration.size(); i++){
-
-            if((Math.abs((agent.z - startConfiguration.get(i).z)) < TOL) && (Math.abs(agent.y - startConfiguration.get(i).y)<TOL)){
-
-                if(((agent.x - startConfiguration.get(i).x)> 1.0f - TOL) && ((agent.x - startConfiguration.get(i).x)< 1.0f - TOL)){
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
 }
