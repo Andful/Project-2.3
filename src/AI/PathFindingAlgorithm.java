@@ -19,6 +19,10 @@ public interface PathFindingAlgorithm
         }
         public int id;
         public Vector3f to;
+        public String toString()
+        {
+            return "Mov["+id+","+to.toString()+"]";
+        }
     }
     public void compute(Vector3f enviromentSize,List<Vector3f> startConfiguration,List<Vector3f> endConfiguration,List<Vector3f> obstacleConfiguration,List<List<Movement>> result);
 }

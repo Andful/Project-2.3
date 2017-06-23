@@ -203,7 +203,6 @@ public class Core<AgentId> extends GameEngine<AgentId>
             }
             Vector3f pos=position.get(position.size()-1);
             pos.y=Math.round(pos.y);
-            System.out.println(position);
             tbu.add(new ToUpdate(aid,position));
         }
         public boolean readjustPosition(Vector3f position,Vector3f velocityDirection,List<Vector3f> agents)

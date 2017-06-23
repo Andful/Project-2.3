@@ -43,7 +43,47 @@ public class BFS implements PathFindingAlgorithm
         {
             obstacle.add(new Vector3i(round(vec.x),round(vec.y),round(vec.z)));
         }
-        List<Agent<Integer>> agents=new ArrayList<>(_startPosition.size());
+
+        compute(size,startPosition,endPosition,obstacle,result);
+    }
+    public void compute(List<Agent<Integer>> agents,List<Agent<Integer>> movableAgents,Array3D<Integer> blocks,List<Vector3i> endPosition,List<List<Movement>> result)
+    {
+        for(Vector3i end:endPosition)
+        {
+            Array3D<Integer> distance = generateDistanceArray(blocks.size(), blocks, end);
+            finish:
+            while(true)
+            {
+                Queue<Agent> heads = getHeadPriorityQueue(distance, agents);
+                here:
+                while (heads.size() > 0)
+                {
+                    Agent head = heads.remove();
+                    Vector3i arrivePosition = getArrivePosition(head, distance, blocks);
+                    Queue<Agent> tails = getTailPriorityQueue(distance, movableAgents, head);
+                    while (tails.size() > 0)
+                    {
+                        Agent tail = tails.remove();
+                        if (pathFindSingleAgent(tail, arrivePosition, blocks, result))
+                        {
+                            if(tail.pos.equals(end))
+                            {
+                                movableAgents.remove(tail);
+                                break finish;
+                            }
+                            else
+                            {
+                                break here;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    public void compute(Vector3i size, List<Vector3i> startPosition, List<Vector3i> endPosition, List<Vector3i> obstacle, List<List<PathFindingAlgorithm.Movement>> result)
+    {
+        List<Agent<Integer>> agents=new ArrayList<>(startPosition.size());
         {
             Iterator<Vector3i> posIter=startPosition.iterator();
             int i=0;
@@ -62,7 +102,8 @@ public class BFS implements PathFindingAlgorithm
             movableAgents.add(agent);
         }
         Array3D<Integer> blocks= generateBlockArray(size,startPosition,obstacle);
-        for(Vector3i end:endPosition)
+        compute(agents,movableAgents,blocks,endPosition,result);
+        /*for(Vector3i end:endPosition)
         {
             Array3D<Integer> distance = generateDistanceArray(size, blocks, end);
             finish:
@@ -93,10 +134,8 @@ public class BFS implements PathFindingAlgorithm
                     }
                 }
             }
-        }
-
+        }*/
     }
-
     public boolean pathFindSingleAgent(Agent<Integer> agent,Vector3i to,Array3D<Integer> obstacles,List<List<Movement>> result)
     {
         obstacles.set(agent.pos,EMPTY);
