@@ -17,18 +17,20 @@ public class Node {
         endConfiguration.add(new Vector3i(0,0,4));
 		
 		List<Vector3i> startConfiguration = new ArrayList<>();
+		startConfiguration.add(new Vector3i(1,0,1));
 		startConfiguration.add(new Vector3i(1,1,0));
-		startConfiguration.add(new Vector3i(0,0,0));
+		startConfiguration.add(new Vector3i(1,0,0));
+		startConfiguration.add(new Vector3i(0,0,1));
+		startConfiguration.add(new Vector3i(0,1,1));
+		startConfiguration.add(new Vector3i(2,0,1));
+		startConfiguration.add(new Vector3i(2,1,1));
+		startConfiguration.add(new Vector3i(1,0,2));
+		startConfiguration.add(new Vector3i(1,1,2));
 
         List<Vector3i> obstacleConfiguration = new ArrayList<>();
         //obstacleConfiguration.add(new Vector3i(0,0,2));
         
         Node node = new Node(startConfiguration,endConfiguration,obstacleConfiguration);
-        
-        //System.out.println(node.checkBottom(node.getAgentConfiguration().get(0)));
-        System.out.println(node.checkLeftBottom(node.getAgentConfiguration().get(0)));
-        System.out.println(node.getAgentConfiguration().get(0));
-        
 	}
 	
 	public Node(List<Vector3i> startConfiguration, List<Vector3i> endConfiguration, List<Vector3i> obstacleConfiguration){
@@ -83,20 +85,113 @@ public class Node {
 			
 			List<Vector3i> actions = new ArrayList<>();
 			
-			if(!checkFront(agentConfiguration.get(i))){
-				actions.add(new Vector3i(0,0,1));
-			}
-			
-			if(!checkRear(agentConfiguration.get(i))){
-				actions.add(new Vector3i(0,0,-1));
-			}
-			
-			if(!checkLeft(agentConfiguration.get(i))){
-				actions.add(new Vector3i(-1,0,0));
-			}
-			
-			if(!checkRight(agentConfiguration.get(i))){
-				actions.add(new Vector3i(1,0,0));
+			if(checkTop(agentConfiguration.get(i))){
+				actions.add(new Vector3i(0,0,0));
+				possibleActions.add(actions);
+				continue;
+			} else {
+				
+				if(checkBottom(agentConfiguration.get(i))){
+					
+					if(checkFront(agentConfiguration.get(i))){
+						
+						if(!checkFrontTop(agentConfiguration.get(i))){
+							actions.add(new Vector3i(0,1,1));
+						}
+						
+					} else {
+						
+						if(checkFrontBottom(agentConfiguration.get(i))){
+							actions.add(new Vector3i(0,0,1));
+						} else {
+							actions.add(new Vector3i(0,-1,1));
+						}
+					}
+					
+					if(checkRear(agentConfiguration.get(i))){
+						
+						if(!checkRearTop(agentConfiguration.get(i))){
+							actions.add(new Vector3i(0,1,-1));
+						}
+						
+					} else {
+						
+						if(checkRearBottom(agentConfiguration.get(i))){
+							actions.add(new Vector3i(0,0,-1));
+						} else {
+							actions.add(new Vector3i(0,-1,-1));
+						}
+					}
+					
+					if(checkLeft(agentConfiguration.get(i))){
+						
+						if(!checkLeftTop(agentConfiguration.get(i))){
+							actions.add(new Vector3i(-1,1,0));
+						}
+						
+					} else {
+						
+						if(checkLeftBottom(agentConfiguration.get(i))){
+							actions.add(new Vector3i(-1,0,0));
+						} else {
+							actions.add(new Vector3i(-1,-1,0));
+						}
+					}
+					
+					if(checkRight(agentConfiguration.get(i))){
+						
+						if(!checkRightTop(agentConfiguration.get(i))){
+							actions.add(new Vector3i(1,1,0));
+						}
+					} else {
+						
+						if(checkRightBottom(agentConfiguration.get(i))){
+							actions.add(new Vector3i(1,0,0));
+						} else {
+							actions.add(new Vector3i(1,-1,0));
+						}
+					}
+					
+				} else {
+					
+					if(checkFront(agentConfiguration.get(i))){
+						
+						if(!checkFrontTop(agentConfiguration.get(i))){
+							actions.add(new Vector3i(0,1,1));
+						} 
+					} else {
+						actions.add(new Vector3i(0,0,1));
+					}
+					
+					if(checkRear(agentConfiguration.get(i))){
+						
+						if(!checkRearTop(agentConfiguration.get(i))){
+							actions.add(new Vector3i(0,1,-1));
+						}
+						
+					} else {
+						actions.add(new Vector3i(0,0,-1));
+					}
+					
+					if(checkLeft(agentConfiguration.get(i))){
+						
+						if(!checkLeftTop(agentConfiguration.get(i))){
+							actions.add(new Vector3i(-1,1,0));
+						}
+					} else {
+						actions.add(new Vector3i(-1,0,0));
+					}
+					
+					if(checkRight(agentConfiguration.get(i))){
+						
+						if(!checkRightTop(agentConfiguration.get(i))){
+							actions.add(new Vector3i(1,1,0));
+						} 
+					} else {
+						actions.add(new Vector3i(1,0,0));
+					}
+					
+				}
 			}
 			
 			possibleActions.add(actions);
