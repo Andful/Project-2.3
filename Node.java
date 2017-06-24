@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.joml.Vector3i;
@@ -16,20 +17,36 @@ public class Node {
         endConfiguration.add(new Vector3i(0,0,4));
 		
 		List<Vector3i> startConfiguration = new ArrayList<>();
-		startConfiguration.add(new Vector3i(0,1,0));
-		startConfiguration.add(new Vector3i(0,0,0));
+		startConfiguration.add(new Vector3i(1,0,1));
+		startConfiguration.add(new Vector3i(1,0,0));
+		startConfiguration.add(new Vector3i(1,1,0));
+		startConfiguration.add(new Vector3i(0,0,1));
+		startConfiguration.add(new Vector3i(0,1,1));
+		startConfiguration.add(new Vector3i(2,0,1));
+		startConfiguration.add(new Vector3i(2,1,1));
+		startConfiguration.add(new Vector3i(1,0,2));
+		startConfiguration.add(new Vector3i(1,1,2));
 		
         List<Vector3i> obstacleConfiguration = new ArrayList<>();
+        obstacleConfiguration.add(new Vector3i(1,0,0));
+		obstacleConfiguration.add(new Vector3i(1,1,0));
+		obstacleConfiguration.add(new Vector3i(0,0,1));
+		obstacleConfiguration.add(new Vector3i(0,1,1));
+		obstacleConfiguration.add(new Vector3i(2,0,1));
+		obstacleConfiguration.add(new Vector3i(2,1,1));
+		obstacleConfiguration.add(new Vector3i(1,0,2));
+		obstacleConfiguration.add(new Vector3i(1,1,2));
         
         Node firstState = new Node(startConfiguration,endConfiguration,obstacleConfiguration);
         
-        System.out.println(firstState.getAgentConfiguration().get(0)); //print coordinates of first agent
-        System.out.println(firstState.getPossibleActions().get(0));
-        
-       // Node secondState = new Node(firstState);
-        //secondState.getAgentConfiguration().get(0).add(secondState.getActions().get(0).get(0));
-        
-      //  System.out.println(secondState.getAgentConfiguration().get(0));
+        System.out.println(firstState.checkFrontTopObstacle(firstState.getAgentConfiguration().get(0)));
+        System.out.println(firstState.checkRearTopObstacle(firstState.getAgentConfiguration().get(0)));
+        System.out.println(firstState.checkRightTopObstacle(firstState.getAgentConfiguration().get(0)));
+        System.out.println(firstState.checkLeftTopObstacle(firstState.getAgentConfiguration().get(0)));
+        System.out.println(firstState.getActions().get(0));
+        System.out.println(firstState.getAgentConfiguration().get(0));
+      
+       
 	}
 	
 	public Node(List<Vector3i> startConfiguration, List<Vector3i> endConfiguration, List<Vector3i> obstacleConfiguration){
@@ -61,7 +78,9 @@ public class Node {
 				possibleActions.add(actions);
 				continue;
 			} else{
+				
 				applyGravity(agentConfiguration.get(i));
+				
 				if(checkBottom(agentConfiguration.get(i))){
 					
 					if(checkFront(agentConfiguration.get(i))){
@@ -75,8 +94,7 @@ public class Node {
 						
 						if(!checkFrontObstacle(agentConfiguration.get(i))){
 							
-							if(checkFrontBottom(agentConfiguration.get(i))){
-								
+							if(!checkFrontBottom(agentConfiguration.get(i))){
 								actions.add(new Vector3i(0,-1,1));
 							}
 						}
@@ -92,7 +110,7 @@ public class Node {
 						
 						if(!checkRearObstacle(agentConfiguration.get(i))){
 							
-							if(checkRearBottom(agentConfiguration.get(i))){
+							if(!checkRearBottom(agentConfiguration.get(i))){
 								actions.add(new Vector3i(0,-1,-1));
 							}
 						}
@@ -107,7 +125,7 @@ public class Node {
 						
 						if(!checkLeftObstacle(agentConfiguration.get(i))){
 							
-							if(checkLeftBottom(agentConfiguration.get(i))){
+							if(!checkLeftBottom(agentConfiguration.get(i))){
 								actions.add(new Vector3i(-1,-1,0));
 							}
 							
@@ -123,7 +141,7 @@ public class Node {
 						
 						if(!checkRightObstacle(agentConfiguration.get(i))){
 							
-							if(checkRightBottom(agentConfiguration.get(i))){
+							if(!checkRightBottom(agentConfiguration.get(i))){
 								actions.add(new Vector3i(1,-1,0));
 							}
 						}
@@ -187,7 +205,7 @@ public class Node {
 	}
 	
 	
-	//works
+	//WORKS
 	private boolean checkFront(Vector3i agent){
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
@@ -203,7 +221,7 @@ public class Node {
 		return false;
 	}
 	
-	//works
+	//WORKS
 	private boolean checkFrontObstacle(Vector3i agent){
 		
 		for(int i=0; i<obstacleConfiguration.size(); i++){
@@ -219,7 +237,7 @@ public class Node {
 		return false;
 	}
 	
-	//works
+	//WORKS
 	private boolean checkRear(Vector3i agent){
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
@@ -235,7 +253,7 @@ public class Node {
 		return false;
 	}
 
-	//works
+	//WORKS
 	private boolean checkRearObstacle(Vector3i agent){
 		
 		for(int i=0; i<obstacleConfiguration.size(); i++){
@@ -251,7 +269,7 @@ public class Node {
 		return false;
 	}
 	
-	//works
+	//WORKS
 	private boolean checkRight(Vector3i agent){
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
@@ -267,7 +285,7 @@ public class Node {
 		return false;
 	}
 	
-	//works
+	//WORKS
 	private boolean checkRightObstacle(Vector3i agent){
 		
 		for(int i=0; i<obstacleConfiguration.size(); i++){
@@ -283,7 +301,7 @@ public class Node {
 		return false;
 	}
 	
-	//works
+	//WORKS
 	private boolean checkLeft(Vector3i agent){
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
@@ -299,7 +317,7 @@ public class Node {
 		return false;
 	}
 	
-	//works
+	//WORKS
 	private boolean checkLeftObstacle(Vector3i agent){
 		
 		for(int i=0; i<obstacleConfiguration.size(); i++){
@@ -315,7 +333,7 @@ public class Node {
 		return false;
 	}
 	
-	//works
+	//WORKS
 	private boolean checkTop(Vector3i agent){
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
@@ -331,23 +349,7 @@ public class Node {
 		return false;
 	}
 	
-	//works
-	private boolean checkTopObstacle(Vector3i agent){
-		
-		for(int i=0; i<obstacleConfiguration.size(); i++){
-			
-			if((Math.abs(obstacleConfiguration.get(i).x - agent.x) == 0) && (Math.abs(obstacleConfiguration.get(i).z - agent.z) == 0)){
-				
-				if(obstacleConfiguration.get(i).y - agent.y == 1){
-					return true;
-				}
-			}
-		}
-		
-		return false;
-	}
-	
-	//works
+	//WORKS
 	private boolean checkBottom(Vector3i agent){
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
@@ -362,42 +364,23 @@ public class Node {
 		return false;
 	}
 	
+	//WORKS
 	private boolean checkBottomObstacle(Vector3i agent){
-		
-		int index = 0;
-		int dummy = -1;		
 		
 		for(int i=0; i<obstacleConfiguration.size(); i++){
 			
-			if((Math.abs(obstacleConfiguration.get(i).x - agent.x) == 0) && (Math.abs(obstacleConfiguration.get(i).z - agent.z) == 0)){
+			if((Math.abs(agent.z - obstacleConfiguration.get(i).z) == 0) && (Math.abs(agent.x - obstacleConfiguration.get(i).x) == 0)){
 				
-				if(agent.y - obstacleConfiguration.get(i).y >= 0){
-					
-					if(obstacleConfiguration.get(i).y >= dummy){
-						dummy = obstacleConfiguration.get(i).y;						
-						index = i;
-						
-					}
-				} 
+				if(agent.y - obstacleConfiguration.get(i).y == 1){
+					return true;
+				}
 			}
-		}		
-		try{
-			
-			if(agent.y - obstacleConfiguration.get(index).y >= 0){
-				
-				agent.y = obstacleConfiguration.get(index).y + 1;
-				return true;
-			} else {
-				agent.y = 0;
-			}
-			
-		} catch(IndexOutOfBoundsException e) {}
-				
-					
+		}
 		return false;
+		
 	}
 	
-	//works
+	//WORKS
 	private boolean checkFrontTop(Vector3i agent){
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
@@ -413,7 +396,7 @@ public class Node {
 		return false;
 	}
 	
-	//works
+	//WORKS
 	private boolean checkFrontTopObstacle(Vector3i agent){
 		
 		for(int i=0; i<obstacleConfiguration.size(); i++){
@@ -429,7 +412,7 @@ public class Node {
 		return false;
 	}
 	
-	//works
+	//WORKS
 	private boolean checkRearTop(Vector3i agent){
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
@@ -445,7 +428,7 @@ public class Node {
 		return false;
 	}
 	
-	//works
+	//WORKS
 	private boolean checkRearTopObstacle(Vector3i agent){
 		
 		for(int i=0; i<obstacleConfiguration.size(); i++){
@@ -461,7 +444,7 @@ public class Node {
 		return false;
 	}
 	
-	//works
+	//WORKS
 	private boolean checkRightTop(Vector3i agent){
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
@@ -477,7 +460,7 @@ public class Node {
 		return false;
 	}
 	
-	//works
+	//WORKS
 	private boolean checkRightTopObstacle(Vector3i agent){
 		
 		for(int i=0; i<obstacleConfiguration.size(); i++){
@@ -493,7 +476,7 @@ public class Node {
 		return false;
 	}
 	
-	//works
+	//WORKS
 	private boolean checkLeftTop(Vector3i agent){
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
@@ -509,7 +492,7 @@ public class Node {
 		return false;
 	}
 	
-	//works
+	//WORKS
 	private boolean checkLeftTopObstacle(Vector3i agent){
 			
 		for(int i=0; i<obstacleConfiguration.size(); i++){
@@ -525,53 +508,27 @@ public class Node {
 		return false;
 	}
 	
-	//bug has not affected getAvailableActions thus far, gravity works correctly
+	//WORKS
 	private boolean checkFrontBottom(Vector3i agent){
-		
-		boolean flag = false;
-		int index = 0;
-		int dummy = 0;
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
 			
 			if(Math.abs(agentConfiguration.get(i).x - agent.x) == 0){
 				
-				if(Math.abs(agent.z - agentConfiguration.get(i).z) == 0){
-					
-					if(agent.y - agentConfiguration.get(i).y > 0){
-						
-						if(agentConfiguration.get(i).y >= dummy){
-							dummy = agentConfiguration.get(i).y;
-							index = i;
-						}
-					}
-				}
-			}
-			
-			if(agent.y - agentConfiguration.get(index).y > 0){
-				agent.y = agentConfiguration.get(index).y + 1;
-				
-			} else {
-				agent.y = 0;
-				
-			}
-			
-			if(Math.abs(agentConfiguration.get(i).x - agent.x) == 0){
 				if((agent.y - agentConfiguration.get(i).y == 1) && (agentConfiguration.get(i).z - agent.z == 1)){
-					flag = true;
+					return true;
 				}
 			}
 		}
 		
-		
-		
-		return flag;
+		return false;
 	}
 	
+	//WORKS!!!
 	private void applyGravity(Vector3i agent){
 		
 		int dummy = -1;
-		int index = 0;
+		int index = -1;
 		boolean checker = false;
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
@@ -609,64 +566,49 @@ public class Node {
 		
 		if(checker){
 			
-			if(agent.y - obstacleConfiguration.get(index).y > 0){
-				agent.y = obstacleConfiguration.get(index).y + 1;
-			} else {
+			try{
+				
+				if(agent.y - obstacleConfiguration.get(index).y > 0){
+					agent.y = obstacleConfiguration.get(index).y + 1;
+				} 
+			} catch(IndexOutOfBoundsException e) {
+				
 				agent.y = 0;
 			}
 		}  else {
 			
-			if(agent.y - agentConfiguration.get(index).y > 0){
-				agent.y = agentConfiguration.get(index).y + 1;
-			} else {
+			try{
+				
+				if(agent.y - agentConfiguration.get(index).y > 0){
+					agent.y = agentConfiguration.get(index).y + 1;
+				}
+			} catch(IndexOutOfBoundsException e) {
 				agent.y = 0;
 			}
 		}
 		
-		
 	}
 	
+	//WORKS
 	private boolean checkFrontBottomObstacle(Vector3i agent){
 		
-		boolean flag = false;
-		int index = 0;
-		int dummy = 0;
 		
 		for(int i=0; i<obstacleConfiguration.size(); i++){
 			
-			if(Math.abs(obstacleConfiguration.get(i).x - agent.x) == 0){
-				
-				if(Math.abs(agent.z - obstacleConfiguration.get(i).z) == 0){
-					
-					if(agent.y - obstacleConfiguration.get(i).y > 0){
-						
-						if(obstacleConfiguration.get(i).y >= dummy){
-							dummy = obstacleConfiguration.get(i).y;
-							index = i;
-						}
-					}
-				}
-			}
 			
 			if(Math.abs(obstacleConfiguration.get(i).x - agent.x) == 0){
 				
 				if((agent.y - obstacleConfiguration.get(i).y == 1) && (obstacleConfiguration.get(i).z - agent.z == 1)){
 					
-					flag = true;
+					return true;
 				}
 			}
 		}
 		
-		if(agent.y - obstacleConfiguration.get(index).y > 0){
-			agent.y = obstacleConfiguration.get(index).y + 1;
-			return flag;
-		} else {
-			agent.y = 0;
-			return flag;
-		}
+		return false;
 	}
 	
-	//bug has not affected getAvailableActions thus far, gravity works correctly
+	//WORKS
 	private boolean checkRearBottom(Vector3i agent){
 		
 		boolean flag = false;
@@ -677,69 +619,32 @@ public class Node {
 			
 			if(Math.abs(agentConfiguration.get(i).x - agent.x) == 0){
 				
-				if(Math.abs(agent.z - agentConfiguration.get(i).z) == 0){
-					
-					if(agent.y - agentConfiguration.get(i).y > 0){
-						
-						if(agentConfiguration.get(i).y >= dummy){
-							dummy = agentConfiguration.get(i).y;
-							index = i;
-						}
-					}
-				}
-				
 				if((agent.y - agentConfiguration.get(i).y == 1) && (agent.z - agentConfiguration.get(i).z == 1)){
-					flag = true;
+					return true;
 				}
 			}
 		}
 		
-		if(agent.y - agentConfiguration.get(index).y > 0){
-			agent.y = agentConfiguration.get(index).y + 1;
-			return flag;
-		} else {
-			agent.y = 0;
-			return flag;
-		}
+		return false;
 	}
 	
+	//WORKS
 	private boolean checkRearBottomObstacle(Vector3i agent){
-		
-		boolean flag = false;
-		int index = 0;
-		int dummy = 0;
 		
 		for(int i=0; i<obstacleConfiguration.size(); i++){
 			
 			if(Math.abs(obstacleConfiguration.get(i).x - agent.x) == 0){
 				
-				if(Math.abs(agent.z - obstacleConfiguration.get(i).z) == 0){
-					
-					if(agent.y - obstacleConfiguration.get(i).y > 0){
-						
-						if(obstacleConfiguration.get(i).y >= dummy){
-							dummy = obstacleConfiguration.get(i).y;
-							index = i;
-						}
-					}
-				}
-				
 				if((agent.y - obstacleConfiguration.get(i).y == 1) && (agent.z - obstacleConfiguration.get(i).z == 1)){
-					flag = true;
+					return true;
 				}
 			}
 		}
 		
-		if(agent.y - obstacleConfiguration.get(index).y > 0){
-			agent.y = obstacleConfiguration.get(index).y + 1;
-			return flag;
-		} else {
-			agent.y = 0;
-			return flag;
-		}
+		return false;
 	}
 
-	//bug has not affected getAvailableActions thus far, gravity works correctly
+	//WORKS
 	private boolean checkRightBottom(Vector3i agent){
 		
 		int index = 0;
@@ -747,35 +652,22 @@ public class Node {
 		boolean flag = false;
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
-			
-			if(Math.abs(agent.z - agentConfiguration.get(i).z) == 0){
+		
 				
-				if(Math.abs(agent.x - agentConfiguration.get(i).x) == 0){
-					
-					if(agent.y - agentConfiguration.get(i).y > 0){
-						
-						if(agentConfiguration.get(i).y >= dummy){
-							dummy = agentConfiguration.get(i).y;
-							index = i;
-						}
+				if(Math.abs(agent.x - agentConfiguration.get(i).x) == 0){			
+				
+					if((agent.y - agentConfiguration.get(i).y == 1) && (agentConfiguration.get(i).x - agent.x == 1)){
+						return true;
 					}
-				}
-				
-				if((agent.y - agentConfiguration.get(i).y == 1) && (agentConfiguration.get(i).x - agent.x == 1)){
-					flag = true;
-				}
-			}
+			
 		}
 		
-		if(agent.y - agentConfiguration.get(index).y > 0){
-			agent.y = agentConfiguration.get(index).y + 1;
-			return flag;
-		} else {
-			agent.y = 0;
-			return flag;
-		}
 	}
 	
+		return false;
+	}
+	
+	//WORKS
 	private boolean checkRightBottomObstacle(Vector3i agent){
 		
 		int index = 0;
@@ -786,103 +678,46 @@ public class Node {
 			
 			if(Math.abs(agent.z - obstacleConfiguration.get(i).z) == 0){
 				
-				if(Math.abs(agent.x - obstacleConfiguration.get(i).x) == 0){
-					
-					if(agent.y - obstacleConfiguration.get(i).y > 0){
-						
-						if(obstacleConfiguration.get(i).y >= dummy){
-							dummy = obstacleConfiguration.get(i).y;
-							index = i;
-						}
-					}
-				}
 				
 				if((agent.y - obstacleConfiguration.get(i).y == 1) && (obstacleConfiguration.get(i).x - agent.x == 1)){
-					flag = true;
+					return true;
 				}
 			}
 		}
 		
-		if(agent.y - obstacleConfiguration.get(index).y > 0){
-			agent.y = obstacleConfiguration.get(index).y + 1;
-			return flag;
-		} else {
-			agent.y = 0;
-			return flag;
-		}
+		return false;
 	}
 
-	//bug has not affected getAvailableActions thus far, gravity works correctly
+	//WORKS
 	private boolean checkLeftBottom(Vector3i agent){
-		
-		int dummy = 0;
-		int index = 0;
-		boolean flag = false;
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
 			
 			if(Math.abs(agent.z - agentConfiguration.get(i).z) == 0){
 				
-				if(Math.abs(agent.x - agentConfiguration.get(i).x) == 0){
-					
-					if(agent.y - agentConfiguration.get(i).y > 0){
-						
-						if(agentConfiguration.get(i).y >= dummy){
-							dummy = agentConfiguration.get(i).y;
-							index = i;
-						}
-					}
-				}
-				
 				if((agent.x - agentConfiguration.get(i).x == 1) && (agent.y - agentConfiguration.get(i).y == 1)){
-					flag = true;
+					return true;
 				}
 			}
 		}
 		
-		if(agent.y - agentConfiguration.get(index).y > 0){
-			agent.y = agentConfiguration.get(index).y + 1;
-			return flag;
-		} else {
-			agent.y = 0;
-			return flag;
-		}
+		return false;
 	}
 	
+	//WORKS
 	private boolean checkLeftBottomObstacle(Vector3i agent){
-		
-		int dummy = 0;
-		int index = 0;
-		boolean flag = false;
 		
 		for(int i=0; i<obstacleConfiguration.size(); i++){
 			
 			if(Math.abs(agent.z - obstacleConfiguration.get(i).z) == 0){
 				
-				if(Math.abs(agent.x - obstacleConfiguration.get(i).x) == 0){
-					
-					if(agent.y - obstacleConfiguration.get(i).y > 0){
-						
-						if(obstacleConfiguration.get(i).y >= dummy){
-							dummy = obstacleConfiguration.get(i).y;
-							index = i;
-						}
-					}
-				}
-				
 				if((agent.x - obstacleConfiguration.get(i).x == 1) && (agent.y - obstacleConfiguration.get(i).y == 1)){
-					flag = true;
+					return true;
 				}
 			}
 		}
 		
-		if(agent.y - obstacleConfiguration.get(index).y > 0){
-			agent.y = obstacleConfiguration.get(index).y + 1;
-			return flag;
-		} else {
-			agent.y = 0;
-			return flag;
-		}
+		return false;
 	}
 
 	public List<Vector3i> getAgentConfiguration() {
