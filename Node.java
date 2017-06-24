@@ -17,17 +17,16 @@ public class Node {
         endConfiguration.add(new Vector3i(0,0,4));
 		
 		List<Vector3i> startConfiguration = new ArrayList<>();
-        startConfiguration.add(new Vector3i(0,1,1));
-        startConfiguration.add(new Vector3i(0,0,1));
-        startConfiguration.add(new Vector3i(0,0,0));
+		startConfiguration.add(new Vector3i(1,1,0));
+		startConfiguration.add(new Vector3i(0,0,0));
 
         List<Vector3i> obstacleConfiguration = new ArrayList<>();
-        obstacleConfiguration.add(new Vector3i(0,0,2));
+        //obstacleConfiguration.add(new Vector3i(0,0,2));
         
         Node node = new Node(startConfiguration,endConfiguration,obstacleConfiguration);
         
         //System.out.println(node.checkBottom(node.getAgentConfiguration().get(0)));
-        System.out.println(node.checkFrontBottom(node.getAgentConfiguration().get(0)));
+        System.out.println(node.checkLeftBottom(node.getAgentConfiguration().get(0)));
         System.out.println(node.getAgentConfiguration().get(0));
         
 	}
@@ -288,13 +287,17 @@ public class Node {
 	private boolean checkBottom(Vector3i agent){
 		
 		int index = 0;
+		int dummy = 0;
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
 			
 			if((Math.abs(agentConfiguration.get(i).x - agent.x) == 0) && (Math.abs(agentConfiguration.get(i).z - agent.z) == 0)){
 				
 				if(agent.y - agentConfiguration.get(i).y > 0){
-					index = i;
+					
+					if(agentConfiguration.get(i).y >= dummy){
+						index = i;
+					}
 				}
 			}
 		}
@@ -453,111 +456,306 @@ public class Node {
 		return false;
 	}
 	
-	//works
+	//some bugs with case floating in the air, might not affect getAvailableActions method however
 	private boolean checkFrontBottom(Vector3i agent){
 		
-		int index = 0;
-		
 		boolean flag = false;
+		int index = 0;
+		int dummy = 0;
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
 			
-			if((Math.abs(agentConfiguration.get(i).x - agent.x)) == 0){
+			if(Math.abs(agentConfiguration.get(i).x - agent.x) == 0){
 				
-				if(agentConfiguration.get(i).z - agent.z == 1){
+				if(Math.abs(agent.z - agentConfiguration.get(i).z) == 0){
 					
 					if(agent.y - agentConfiguration.get(i).y > 0){
-						index = i;
-					}
-					
-					if(agent.y - agentConfiguration.get(i).y == 1){
-						flag = true;
+						
+						if(agentConfiguration.get(i).y >= dummy){
+							dummy = agentConfiguration.get(i).y;
+							index = i;
+						}
 					}
 				}
 			}
-		}
-		
-		if(agent.y - agentConfiguration.get(index).y > 1){
 			
-			if((Math.abs(agent.x - agentConfiguration.get(index).x) == 0) && (Math.abs(agent.z - agentConfiguration.get(index).z) == 0)){
-				agent.y = agentConfiguration.get(index).y + 1;
-			} else {
-				agent.y = 0;
-			}
-			return flag;
-		} else if(agent.y - agentConfiguration.get(index).y <= 1) {
-			agent.y = 0;
-		} 
-		
-		return false;
-	}
-	
-	//works
-	private boolean checkFrontBottomObstacle(Vector3i agent){
-		
-		int index = 0;
-		
-		boolean flag = false;
-		
-		for(int i=0; i<obstacleConfiguration.size(); i++){
-			
-			if((Math.abs(obstacleConfiguration.get(i).x - agent.x)) == 0){
+			if(Math.abs(agentConfiguration.get(i).x - agent.x) == 0){
 				
-				if(obstacleConfiguration.get(i).z - agent.z == 1){
+				if((agent.y - agentConfiguration.get(i).y == 1) && (agentConfiguration.get(i).z - agent.z == 1)){
 					
-					if(agent.y - obstacleConfiguration.get(i).y > 0){
-						index = i;
-					}
-					
-					if(agent.y - obstacleConfiguration.get(i).y == 1){
-						flag = true;
-					}
-				}
-			}
-		}
-		
-		if(agent.y - obstacleConfiguration.get(index).y > 1){
-			
-			if((Math.abs(agent.x - obstacleConfiguration.get(index).x) == 0) && (Math.abs(agent.z - obstacleConfiguration.get(index).z) == 0)){
-				agent.y = obstacleConfiguration.get(index).y + 1;
-			} else {
-				agent.y = 0;
-			}
-			return flag;
-		} else if(agent.y - obstacleConfiguration.get(index).y <= 1) {
-			agent.y = 0;
-		} 
-		
-		return false;
-	}
-	
-	private boolean checkRearBottom(Vector3i agent){
-		
-		int index = 0;
-		
-		for(int i=0; i<agentConfiguration.size(); i++){
-			
-			if((Math.abs(agentConfiguration.get(i).x - agent.x) == 0)){
-				
-				if(agent.z - agentConfiguration.get(i).z == 1){
-					
-					if(agent.y - agentConfiguration.get(i).y > 0){
-						index = i;
-					}
+					flag = true;
 				}
 			}
 		}
 		
 		if(agent.y - agentConfiguration.get(index).y > 0){
 			agent.y = agentConfiguration.get(index).y + 1;
-			return true;
+			return flag;
 		} else {
 			agent.y = 0;
+			return flag;
 		}
-		
-		return false;
 	}
 	
+	private boolean checkFrontBottomObstacle(Vector3i agent){
+		
+		boolean flag = false;
+		int index = 0;
+		int dummy = 0;
+		
+		for(int i=0; i<obstacleConfiguration.size(); i++){
+			
+			if(Math.abs(obstacleConfiguration.get(i).x - agent.x) == 0){
+				
+				if(Math.abs(agent.z - obstacleConfiguration.get(i).z) == 0){
+					
+					if(agent.y - obstacleConfiguration.get(i).y > 0){
+						
+						if(obstacleConfiguration.get(i).y >= dummy){
+							dummy = obstacleConfiguration.get(i).y;
+							index = i;
+						}
+					}
+				}
+			}
+			
+			if(Math.abs(obstacleConfiguration.get(i).x - agent.x) == 0){
+				
+				if((agent.y - obstacleConfiguration.get(i).y == 1) && (obstacleConfiguration.get(i).z - agent.z == 1)){
+					
+					flag = true;
+				}
+			}
+		}
+		
+		if(agent.y - obstacleConfiguration.get(index).y > 0){
+			agent.y = obstacleConfiguration.get(index).y + 1;
+			return flag;
+		} else {
+			agent.y = 0;
+			return flag;
+		}
+	}
+	
+	//some bugs with case floating in the air, might not affect getAvailableActions method however
+	private boolean checkRearBottom(Vector3i agent){
+		
+		boolean flag = false;
+		int index = 0;
+		int dummy = 0;
+		
+		for(int i=0; i<agentConfiguration.size(); i++){
+			
+			if(Math.abs(agentConfiguration.get(i).x - agent.x) == 0){
+				
+				if(Math.abs(agent.z - agentConfiguration.get(i).z) == 0){
+					
+					if(agent.y - agentConfiguration.get(i).y > 0){
+						
+						if(agentConfiguration.get(i).y >= dummy){
+							dummy = agentConfiguration.get(i).y;
+							index = i;
+						}
+					}
+				}
+				
+				if((agent.y - agentConfiguration.get(i).y == 1) && (agent.z - agentConfiguration.get(i).z == 1)){
+					flag = true;
+				}
+			}
+		}
+		
+		if(agent.y - agentConfiguration.get(index).y > 0){
+			agent.y = agentConfiguration.get(index).y + 1;
+			return flag;
+		} else {
+			agent.y = 0;
+			return flag;
+		}
+	}
+	
+	private boolean checkRearBottomObstacle(Vector3i agent){
+		
+		boolean flag = false;
+		int index = 0;
+		int dummy = 0;
+		
+		for(int i=0; i<obstacleConfiguration.size(); i++){
+			
+			if(Math.abs(obstacleConfiguration.get(i).x - agent.x) == 0){
+				
+				if(Math.abs(agent.z - obstacleConfiguration.get(i).z) == 0){
+					
+					if(agent.y - obstacleConfiguration.get(i).y > 0){
+						
+						if(obstacleConfiguration.get(i).y >= dummy){
+							dummy = obstacleConfiguration.get(i).y;
+							index = i;
+						}
+					}
+				}
+				
+				if((agent.y - obstacleConfiguration.get(i).y == 1) && (agent.z - obstacleConfiguration.get(i).z == 1)){
+					flag = true;
+				}
+			}
+		}
+		
+		if(agent.y - obstacleConfiguration.get(index).y > 0){
+			agent.y = obstacleConfiguration.get(index).y + 1;
+			return flag;
+		} else {
+			agent.y = 0;
+			return flag;
+		}
+	}
+
+	//some bugs with case floating in the air, might not affect getAvailableActions method however
+	private boolean checkRightBottom(Vector3i agent){
+		
+		int index = 0;
+		int dummy = 0;
+		boolean flag = false;
+		
+		for(int i=0; i<agentConfiguration.size(); i++){
+			
+			if(Math.abs(agent.z - agentConfiguration.get(i).z) == 0){
+				
+				if(Math.abs(agent.x - agentConfiguration.get(i).x) == 0){
+					
+					if(agent.y - agentConfiguration.get(i).y > 0){
+						
+						if(agentConfiguration.get(i).y >= dummy){
+							dummy = agentConfiguration.get(i).y;
+							index = i;
+						}
+					}
+				}
+				
+				if((agent.y - agentConfiguration.get(i).y == 1) && (agentConfiguration.get(i).x - agent.x == 1)){
+					flag = true;
+				}
+			}
+		}
+		
+		if(agent.y - agentConfiguration.get(index).y > 0){
+			agent.y = agentConfiguration.get(index).y + 1;
+			return flag;
+		} else {
+			agent.y = 0;
+			return flag;
+		}
+	}
+	
+	private boolean checkRightBottomObstacle(Vector3i agent){
+		
+		int index = 0;
+		int dummy = 0;
+		boolean flag = false;
+		
+		for(int i=0; i<obstacleConfiguration.size(); i++){
+			
+			if(Math.abs(agent.z - obstacleConfiguration.get(i).z) == 0){
+				
+				if(Math.abs(agent.x - obstacleConfiguration.get(i).x) == 0){
+					
+					if(agent.y - obstacleConfiguration.get(i).y > 0){
+						
+						if(obstacleConfiguration.get(i).y >= dummy){
+							dummy = obstacleConfiguration.get(i).y;
+							index = i;
+						}
+					}
+				}
+				
+				if((agent.y - obstacleConfiguration.get(i).y == 1) && (obstacleConfiguration.get(i).x - agent.x == 1)){
+					flag = true;
+				}
+			}
+		}
+		
+		if(agent.y - obstacleConfiguration.get(index).y > 0){
+			agent.y = obstacleConfiguration.get(index).y + 1;
+			return flag;
+		} else {
+			agent.y = 0;
+			return flag;
+		}
+	}
+
+	//some bugs with case floating in the air, might not affect getAvailableActions method however
+	private boolean checkLeftBottom(Vector3i agent){
+		
+		int dummy = 0;
+		int index = 0;
+		boolean flag = false;
+		
+		for(int i=0; i<agentConfiguration.size(); i++){
+			
+			if(Math.abs(agent.z - agentConfiguration.get(i).z) == 0){
+				
+				if(Math.abs(agent.x - agentConfiguration.get(i).x) == 0){
+					
+					if(agent.y - agentConfiguration.get(i).y > 0){
+						
+						if(agentConfiguration.get(i).y >= dummy){
+							dummy = agentConfiguration.get(i).y;
+							index = i;
+						}
+					}
+				}
+				
+				if((agent.x - agentConfiguration.get(i).x == 1) && (agent.y - agentConfiguration.get(i).y == 1)){
+					flag = true;
+				}
+			}
+		}
+		
+		if(agent.y - agentConfiguration.get(index).y > 0){
+			agent.y = agentConfiguration.get(index).y + 1;
+			return flag;
+		} else {
+			agent.y = 0;
+			return flag;
+		}
+	}
+	
+	private boolean checkLeftBottomObstacle(Vector3i agent){
+		
+		int dummy = 0;
+		int index = 0;
+		boolean flag = false;
+		
+		for(int i=0; i<obstacleConfiguration.size(); i++){
+			
+			if(Math.abs(agent.z - obstacleConfiguration.get(i).z) == 0){
+				
+				if(Math.abs(agent.x - obstacleConfiguration.get(i).x) == 0){
+					
+					if(agent.y - obstacleConfiguration.get(i).y > 0){
+						
+						if(obstacleConfiguration.get(i).y >= dummy){
+							dummy = obstacleConfiguration.get(i).y;
+							index = i;
+						}
+					}
+				}
+				
+				if((agent.x - obstacleConfiguration.get(i).x == 1) && (agent.y - obstacleConfiguration.get(i).y == 1)){
+					flag = true;
+				}
+			}
+		}
+		
+		if(agent.y - obstacleConfiguration.get(index).y > 0){
+			agent.y = obstacleConfiguration.get(index).y + 1;
+			return flag;
+		} else {
+			agent.y = 0;
+			return flag;
+		}
+	}
+
 	public List<Vector3i> getAgentConfiguration() {
 		return agentConfiguration;
 	}
@@ -605,10 +803,5 @@ public class Node {
 	public void setValue(double value) {
 		this.value = value;
 	}
-	
-	
-	
-	
-	
 
 }
