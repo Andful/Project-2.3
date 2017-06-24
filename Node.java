@@ -16,16 +16,15 @@ public class Node {
         endConfiguration.add(new Vector3i(0,0,4));
 		
 		List<Vector3i> startConfiguration = new ArrayList<>();
-		startConfiguration.add(new Vector3i(0,10,0));
-		
+		startConfiguration.add(new Vector3i(0,1,0));
+		startConfiguration.add(new Vector3i(0,0,0));
 		
         List<Vector3i> obstacleConfiguration = new ArrayList<>();
-        obstacleConfiguration.add(new Vector3i(0,0,0));
         
         Node firstState = new Node(startConfiguration,endConfiguration,obstacleConfiguration);
         
-        System.out.println(firstState.checkBottomObstacle(firstState.getAgentConfiguration().get(0)));
-        System.out.println(firstState.getActions().get(0));
+        System.out.println(firstState.getAgentConfiguration().get(0)); //print coordinates of first agent
+        System.out.println(firstState.getPossibleActions().get(0));
         
        // Node secondState = new Node(firstState);
         //secondState.getAgentConfiguration().get(0).add(secondState.getActions().get(0).get(0));
@@ -62,7 +61,7 @@ public class Node {
 				possibleActions.add(actions);
 				continue;
 			} else{
-				
+				applyGravity(agentConfiguration.get(i));
 				if(checkBottom(agentConfiguration.get(i))){
 					
 					if(checkFront(agentConfiguration.get(i))){
@@ -73,9 +72,11 @@ public class Node {
 						
 					} else{
 						
+						
 						if(!checkFrontObstacle(agentConfiguration.get(i))){
 							
 							if(checkFrontBottom(agentConfiguration.get(i))){
+								
 								actions.add(new Vector3i(0,-1,1));
 							}
 						}
@@ -178,6 +179,8 @@ public class Node {
 					}
 				}
 			}
+		
+		possibleActions.add(actions);
 		}
 		
 		return possibleActions;
@@ -347,61 +350,48 @@ public class Node {
 	//works
 	private boolean checkBottom(Vector3i agent){
 		
-		int index = 0;
-		int dummy = -1;
-		
-		
 		for(int i=0; i<agentConfiguration.size(); i++){
 			
-			if((Math.abs(agentConfiguration.get(i).x - agent.x) == 0) && (Math.abs(agentConfiguration.get(i).z - agent.z) == 0)){
+			if((Math.abs(agent.z - agentConfiguration.get(i).z) == 0) && (Math.abs(agent.x - agentConfiguration.get(i).x) == 0)){
 				
-				if(agent.y - agentConfiguration.get(i).y > 0){
-					
-					if(agentConfiguration.get(i).y >= dummy){
-						dummy = agentConfiguration.get(i).y;
-						index = i;
-					}
-				} 
+				if(agent.y - agentConfiguration.get(i).y == 1){
+					return true;
+				}
 			}
-		}		
-			
-		if(agent.y - agentConfiguration.get(index).y > 0){
-			agent.y = agentConfiguration.get(index).y + 1;
-			return true;
-		} else {
-			agent.y = 0;
 		}
-				
-					
 		return false;
 	}
 	
 	private boolean checkBottomObstacle(Vector3i agent){
 		
 		int index = 0;
-		int dummy = -1;
-		
+		int dummy = -1;		
 		
 		for(int i=0; i<obstacleConfiguration.size(); i++){
 			
 			if((Math.abs(obstacleConfiguration.get(i).x - agent.x) == 0) && (Math.abs(obstacleConfiguration.get(i).z - agent.z) == 0)){
 				
-				if(agent.y - obstacleConfiguration.get(i).y > 0){
+				if(agent.y - obstacleConfiguration.get(i).y >= 0){
 					
 					if(obstacleConfiguration.get(i).y >= dummy){
-						dummy = obstacleConfiguration.get(i).y;
+						dummy = obstacleConfiguration.get(i).y;						
 						index = i;
+						
 					}
 				} 
 			}
 		}		
+		try{
 			
-		if(agent.y - obstacleConfiguration.get(index).y > 0){
-			agent.y = obstacleConfiguration.get(index).y + 1;
-			return true;
-		} else {
-			agent.y = 0;
-		}
+			if(agent.y - obstacleConfiguration.get(index).y >= 0){
+				
+				agent.y = obstacleConfiguration.get(index).y + 1;
+				return true;
+			} else {
+				agent.y = 0;
+			}
+			
+		} catch(IndexOutOfBoundsException e) {}
 				
 					
 		return false;
@@ -558,22 +548,82 @@ public class Node {
 				}
 			}
 			
-			if(Math.abs(agentConfiguration.get(i).x - agent.x) == 0){
+			if(agent.y - agentConfiguration.get(index).y > 0){
+				agent.y = agentConfiguration.get(index).y + 1;
 				
+			} else {
+				agent.y = 0;
+				
+			}
+			
+			if(Math.abs(agentConfiguration.get(i).x - agent.x) == 0){
 				if((agent.y - agentConfiguration.get(i).y == 1) && (agentConfiguration.get(i).z - agent.z == 1)){
-					
 					flag = true;
 				}
 			}
 		}
 		
-		if(agent.y - agentConfiguration.get(index).y > 0){
-			agent.y = agentConfiguration.get(index).y + 1;
-			return flag;
-		} else {
-			agent.y = 0;
-			return flag;
+		
+		
+		return flag;
+	}
+	
+	private void applyGravity(Vector3i agent){
+		
+		int dummy = -1;
+		int index = 0;
+		boolean checker = false;
+		
+		for(int i=0; i<agentConfiguration.size(); i++){
+			
+			if((Math.abs(agentConfiguration.get(i).x - agent.x) == 0) && (Math.abs(agentConfiguration.get(i).z - agent.z)) == 0){
+				
+				if(agent.y - agentConfiguration.get(i).y > 0){
+					
+					if(agentConfiguration.get(i).y >= dummy){
+						dummy = agentConfiguration.get(i).y;
+						index = i;
+					}
+				}
+			}			
 		}
+		
+		if(dummy == -1){
+			
+			for(int i=0; i<obstacleConfiguration.size(); i++){
+				
+				if((Math.abs(obstacleConfiguration.get(i).x - agent.x) == 0) && (Math.abs(obstacleConfiguration.get(i).z - agent.z)) == 0){
+					
+					if(agent.y - obstacleConfiguration.get(i).y > 0){
+						
+						if(obstacleConfiguration.get(i).y >= dummy){
+							dummy = obstacleConfiguration.get(i).y;
+							index = i;
+							checker = true;
+						}
+					}
+				
+			}
+		}
+	}
+		
+		if(checker){
+			
+			if(agent.y - obstacleConfiguration.get(index).y > 0){
+				agent.y = obstacleConfiguration.get(index).y + 1;
+			} else {
+				agent.y = 0;
+			}
+		}  else {
+			
+			if(agent.y - agentConfiguration.get(index).y > 0){
+				agent.y = agentConfiguration.get(index).y + 1;
+			} else {
+				agent.y = 0;
+			}
+		}
+		
+		
 	}
 	
 	private boolean checkFrontBottomObstacle(Vector3i agent){
