@@ -15,21 +15,55 @@ public class Node {
 	public static void main(String[] args){
 
         List<Vector3i> endConfiguration = new ArrayList<>();
-        endConfiguration.add(new Vector3i(0,0,4));
-        endConfiguration.add(new Vector3i(0,0,3));
+        endConfiguration.add(new Vector3i(2,0,0));
+        endConfiguration.add(new Vector3i(3,0,0));
 		
 		List<Vector3i> startConfiguration = new ArrayList<>();
 		startConfiguration.add(new Vector3i(0,0,0));
-		startConfiguration.add(new Vector3i(0,0,1));
+		startConfiguration.add(new Vector3i(1,0,0));
 		
         List<Vector3i> obstacleConfiguration = new ArrayList<>();
         
         Node firstState = new Node(startConfiguration,endConfiguration,obstacleConfiguration);
+        
+       // System.out.println(firstState.getActions().get(0));
+        //System.out.println(firstState.getActions().get(1));
+       // System.out.println(firstState.getOptimalActions().get(0));
+        
+        
+        List<Vector3i> secondConfiguration = new ArrayList<>();
+        secondConfiguration.add(new Vector3i(1,1,0));
+        secondConfiguration.add(new Vector3i(1,0,0));
+        
+        Node secondState = new Node(secondConfiguration,endConfiguration,obstacleConfiguration);
       
-      //  System.out.println(firstState.getActions().get(0));
-      //  System.out.println(firstState.getOptimalActions().get(0));
-        System.out.println(firstState.getActions().get(1));
-        System.out.println(firstState.getOptimalActions().get(1));
+     //   System.out.println(secondState.getActions().get(0));
+      //  System.out.println(secondState.getActions().get(1));
+       // System.out.println(secondState.getOptimalActions().get(0));
+        
+        List<Vector3i> thirdConfiguration = new ArrayList<>();
+        thirdConfiguration.add(new Vector3i(2,0,0));
+        thirdConfiguration.add(new Vector3i(1,0,0));
+        
+        Node thirdState = new Node(thirdConfiguration,endConfiguration,obstacleConfiguration);
+        
+        
+       // System.out.println(thirdState.getActions().get(0));
+        //System.out.println(thirdState.getActions().get(1));
+        //System.out.println(thirdState.getOptimalActions().get(0));
+        //System.out.println(thirdState.getOptimalActions().get(1));
+        
+        List<Vector3i> fourthConfiguration = new ArrayList<>();
+        fourthConfiguration.add(new Vector3i(2,0,0));
+        fourthConfiguration.add(new Vector3i(2,1,0));
+        
+        Node fourthState = new Node(fourthConfiguration,endConfiguration,obstacleConfiguration);
+        
+        System.out.println(fourthState.getActions().get(0));
+        System.out.println(fourthState.getActions().get(1));
+        System.out.println(fourthState.getOptimalActions().get(0));
+        System.out.println(fourthState.getOptimalActions().get(1));
+        
 	}
 	
 	public Node(List<Vector3i> startConfiguration, List<Vector3i> endConfiguration, List<Vector3i> obstacleConfiguration){
@@ -37,7 +71,7 @@ public class Node {
 		this.endConfiguration = endConfiguration;
 		this.obstacleConfiguration = obstacleConfiguration;
 		this.possibleActions = getAvailableActions();
-		this.optimalActions = findOptimalActions();
+		this.optimalActions = getOptimalMoves();
 	}
 	
 	public Node(Node node){
@@ -191,334 +225,199 @@ public class Node {
 		
 		return possibleActions;
 	}
-	
-	public Vector3i getIdealMove(){
+
+	//WORKS FOR NON DIAGONAL, non diagonal not implemented yet
+	private List<List<Vector3i>> getOptimalMoves(){
 		
+		Vector3i rearDown = new Vector3i(0,-1,-1);
+		Vector3i rear = new Vector3i(0,0,-1);
+		Vector3i rearUp = new Vector3i(0,1,-1);
+		Vector3i frontDown = new Vector3i(0,-1,1);
+		Vector3i front = new Vector3i(0,0,1);
+		Vector3i frontUp = new Vector3i(0,1,1);
+		Vector3i leftDown = new Vector3i(-1,-1,0);
+		Vector3i left = new Vector3i(-1,0,0);
+		Vector3i leftUp = new Vector3i(-1,1,0);
+		Vector3i rightDown = new Vector3i(1,-1,0);
+		Vector3i right = new Vector3i(1,0,0);
+		Vector3i rightUp = new Vector3i(1,1,0);
 		
-		
-		for(int i=0;i<optimalActions.size(); i++){
-			
-		}
-		
-		return null;
-	}
-	
-	private List<List<Vector3i>> findOptimalActions(){
-		
-		List<List<Vector3i>> optimalActions = new ArrayList<>();
+		List<List<Vector3i>> optimalMoves = new ArrayList<>();
 		
 		for(int i=0; i<agentConfiguration.size(); i++){
 			
-			List<Vector3i> actions = new ArrayList<>();
+			List<Vector3i> moves = new ArrayList<>();
 			
-			if(Math.abs(agentConfiguration.get(i).x - endConfiguration.get(i).x) == 0){
+			if(agentConfiguration.get(i).x == endConfiguration.get(i).x){
 				
-				Vector3i front = new Vector3i(0,0,1);
-				Vector3i rear = new Vector3i(0,0,-1);
-				Vector3i frontUp = new Vector3i(0,1,1);
-				Vector3i rearUp = new Vector3i(0,1,-1);
-				Vector3i frontDown = new Vector3i(0,-1,1);
-				Vector3i rearDown = new Vector3i(0,-1,-1);
-				
-				for(int j=0; j<possibleActions.get(i).size(); j++){
+				if(agentConfiguration.get(i).z > endConfiguration.get(i).z){
 					
-					if(endConfiguration.get(i).y - agentConfiguration.get(i).y > 0){
+					if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
 						
-						if(endConfiguration.get(i).z - agentConfiguration.get(i).z > 0){
+						for(int j=0; j<getActions().get(i).size(); j++){
 							
-							if(possibleActions.get(i).get(j).equals(frontUp)){
-								
-								actions.add(frontUp);
-							}
+							if(getActions().get(i).get(j).equals(rearDown))
+								moves.add(rearDown);
+							else if(getActions().get(i).get(j).equals(rear))
+								moves.add(rear);
+							else if(getActions().get(i).get(j).equals(rearUp))
+								moves.add(rearUp);
+
 						}
-						
-						if(agentConfiguration.get(i).z - endConfiguration.get(i).z > 0){
-							
-							if(possibleActions.get(i).get(j).equals(rearUp)){
-								
-								actions.add(rearUp);
-							}
-						}
-							
 					}
-					
-					else if(agentConfiguration.get(i).y - endConfiguration.get(i).y > 0){
+					else if(agentConfiguration.get(i).y == endConfiguration.get(i).y){
 						
-						if(endConfiguration.get(i).z - agentConfiguration.get(i).z > 0){
+						for(int j=0; j<getActions().get(i).size(); j++){
 							
-							if(possibleActions.get(i).get(j).equals(frontDown)){
-								
-								actions.add(frontDown);
-							}
+							if(getActions().get(i).get(j).equals(rear))
+								moves.add(rear);
+							else if(getActions().get(i).get(j).equals(rearUp))
+								moves.add(rearUp);
+							else if(getActions().get(i).get(j).equals(rearDown))
+								moves.add(rearDown);
+						}
+					} else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
+						
+						for(int j=0; j<getActions().get(i).size(); j++){
+							
+							if(getActions().get(i).get(j).equals(rearUp))
+								moves.add(rearUp);
+							else if(getActions().get(i).get(j).equals(rear))
+								moves.add(rear);
+							else if(getActions().get(i).get(j).equals(rearDown))
+								moves.add(rearDown);
 						}
 						
-						if(agentConfiguration.get(i).z - endConfiguration.get(i).z > 0){
-							
-							if(possibleActions.get(i).get(j).equals(rearDown)){
-								
-								actions.add(rearDown);
-							}
-						}
-							
-					} else {
-						
-						if(endConfiguration.get(i).z - agentConfiguration.get(i).z > 0){
-							
-							if(possibleActions.get(i).get(j).equals(front)){
-								actions.add(front);
-							}
-						}
-						
-						if(agentConfiguration.get(i).z - endConfiguration.get(i).z > 0){
-							
-							if(possibleActions.get(i).get(j).equals(rear)){
-								actions.add(rear);
-							}
-						}
 					}
 				}
 				
-			}
-			
-			if(Math.abs(agentConfiguration.get(i).z - endConfiguration.get(i).z) == 0){
-				
-				Vector3i right = new Vector3i(1,0,0);
-				Vector3i left = new Vector3i(-1,0,0);
-				Vector3i rightUp = new Vector3i(1,1,0);
-				Vector3i leftUp = new Vector3i(-1,1,0);
-				Vector3i rightDown = new Vector3i(1,-1,0);
-				Vector3i leftDown = new Vector3i(-1,-1,0);
-				
-				for(int j=0; j<possibleActions.get(i).size(); j++){
+				if(agentConfiguration.get(i).z < endConfiguration.get(i).z){
 					
-					if(endConfiguration.get(i).y - agentConfiguration.get(i).y > 0){
+					if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
 						
-						if(endConfiguration.get(i).x - agentConfiguration.get(i).x > 0){
+						for(int j=0; j<getActions().get(i).size(); j++){
 							
-							if(possibleActions.get(i).get(j).equals(rightUp)){
-								actions.add(rightUp);
-							}
-						}
-						
-						if(agentConfiguration.get(i).x - endConfiguration.get(i).x > 0){
-							
-							if(possibleActions.get(i).get(j).equals(leftUp)){
-								actions.add(leftUp);
-							}
+							if(getActions().get(i).get(j).equals(frontDown))
+								moves.add(frontDown);
+							else if(getActions().get(i).get(j).equals(front))
+								moves.add(front);
+							else if(getActions().get(i).get(j).equals(frontDown))
+								moves.add(frontDown);
 						}
 					}
-					
-					else if(agentConfiguration.get(i).y - endConfiguration.get(i).y > 0){
+					else if(agentConfiguration.get(i).y == endConfiguration.get(i).y){
 						
-						if(endConfiguration.get(i).x - agentConfiguration.get(i).x > 0){
+						for(int j=0; j<getActions().get(i).size(); j++){
 							
-							if(possibleActions.get(i).get(j).equals(rightDown)){
-								actions.add(rightDown);
-							}
+							if(getActions().get(i).get(j).equals(front))
+								moves.add(front);
+							else if(getActions().get(i).get(j).equals(frontUp))
+								moves.add(frontUp);
+							else if(getActions().get(i).get(j).equals(frontDown))
+								moves.add(frontDown);
 						}
+					} else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
 						
-						if(agentConfiguration.get(i).x - endConfiguration.get(i).x > 0){
+						for(int j=0; j<getActions().get(i).size(); j++){
 							
-							if(possibleActions.get(i).get(j).equals(leftDown)){
-								actions.add(leftDown);
-							}
-						}
-					} else {
-						
-						if(endConfiguration.get(i).x - agentConfiguration.get(i).x > 0){
-							
-							if(possibleActions.get(i).get(j).equals(right)){
-								actions.add(right);
-							}
-						}
-						
-						if(agentConfiguration.get(i).x - endConfiguration.get(i).x > 0){
-							
-							if(possibleActions.get(i).get(j).equals(left)){
-								actions.add(left);
-							}
+							if(getActions().get(i).get(j).equals(frontUp))
+								moves.add(frontUp);
+							else if(getActions().get(i).get(j).equals(front))
+								moves.add(front);
+							else if(getActions().get(i).get(j).equals(frontDown))
+								moves.add(frontDown);
 						}
 						
 					}
 				}
 			}
 			
-			if((!(Math.abs(endConfiguration.get(i).z - agentConfiguration.get(i).z) == 0)) 
-					&& (!(Math.abs(endConfiguration.get(i).x - agentConfiguration.get(i).x)==0))){
+			if(agentConfiguration.get(i).z == endConfiguration.get(i).z){
 				
-				Vector3i frontUp = new Vector3i(0,1,1);
-				Vector3i rearUp = new Vector3i(0,1,-1);
-				Vector3i rightUp = new Vector3i(1,1,0);
-				Vector3i leftUp = new Vector3i(-1,1,0);
-				Vector3i frontDown = new Vector3i(0,-1,1);
-				Vector3i rearDown = new Vector3i(0,-1,-1);
-				Vector3i rightDown = new Vector3i(1,-1,0);
-				Vector3i leftDown = new Vector3i(-1,-1,0);
-				Vector3i rear = new Vector3i(0,0,-1);
-				Vector3i front = new Vector3i(0,0,1);
-				Vector3i right = new Vector3i(1,0,0);
-				Vector3i left = new Vector3i(-1,0,0);
-				
-				if(endConfiguration.get(i).y - agentConfiguration.get(i).y > 0){
+				if(agentConfiguration.get(i).x > endConfiguration.get(i).x){
 					
-					int differenceOfXs = Math.abs(agentConfiguration.get(i).x - endConfiguration.get(i).x);
-					int differenceOfZs = Math.abs(agentConfiguration.get(i).z - endConfiguration.get(i).z);
-					
-					if(differenceOfZs > differenceOfXs){
+					if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
 						
-						if(agentConfiguration.get(i).z - endConfiguration.get(i).z > 0){
+						for(int j=0; j<getActions().get(i).size(); j++){
 							
-							for(int j=0; j<possibleActions.get(i).size(); j++){
-								
-								if(possibleActions.get(i).get(j).equals(rearUp)){
-									actions.add(rearUp);
-								}
-							}
+							if(getActions().get(i).get(j).equals(leftDown))
+								moves.add(leftDown);
+							else if(getActions().get(i).get(j).equals(left))
+								moves.add(left);
+							else if(getActions().get(i).get(j).equals(leftUp))
+								moves.add(leftUp);
+						}
+					}
+					else if(agentConfiguration.get(i).y == endConfiguration.get(i).y){
+						
+						for(int j=0; j<getActions().get(i).size(); j++){
+							
+							if(getActions().get(i).get(j).equals(left))
+								moves.add(left);
+							else if(getActions().get(i).get(j).equals(leftUp))
+								moves.add(leftUp);
+							else if(getActions().get(i).get(j).equals(leftDown))
+								moves.add(leftDown);
+						}
+					} else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
+						
+						for(int j=0; j<getActions().get(i).size(); j++){
+							
+							if(getActions().get(i).get(j).equals(leftUp))
+								moves.add(leftUp);
+							else if(getActions().get(i).get(j).equals(left))
+								moves.add(left);
+							else if(getActions().get(i).get(j).equals(leftDown))
+								moves.add(leftDown);
 						}
 						
-						if(endConfiguration.get(i).z - agentConfiguration.get(i).z > 0){
-							
-							for(int j=0; j<possibleActions.get(i).size(); j++){
-								
-								if(possibleActions.get(i).get(j).equals(frontUp)){
-									actions.add(frontUp);
-								}
-							}
-						}
-					} else {
-						
-						if(agentConfiguration.get(i).x - endConfiguration.get(i).x > 0){
-							
-							for(int j=0; j<possibleActions.get(i).size(); j++){
-								
-								if(possibleActions.get(i).get(j).equals(leftUp)){
-									actions.add(leftUp);
-								}
-							}
-						}
-						
-						if(endConfiguration.get(i).x - agentConfiguration.get(i).x > 0){
-							
-							for(int j=0; j<possibleActions.get(i).size(); j++){
-								
-								if(possibleActions.get(i).get(j).equals(rightUp)){
-									actions.add(rightUp);
-								}
-							}
-							
-						}
 					}
 				}
 				
-				else if(agentConfiguration.get(i).y - endConfiguration.get(i).y > 0){
+				if(agentConfiguration.get(i).x < endConfiguration.get(i).x){
 					
-					int differenceOfXs = Math.abs(agentConfiguration.get(i).x - endConfiguration.get(i).x);
-					int differenceOfZs = Math.abs(agentConfiguration.get(i).z - endConfiguration.get(i).z);
-					
-					if(differenceOfZs > differenceOfXs){
+					if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
 						
-						if(agentConfiguration.get(i).z - endConfiguration.get(i).z > 0){
+						for(int j=0; j<getActions().get(i).size(); j++){
 							
-							for(int j=0; j<possibleActions.get(i).size(); j++){
-								
-								if(possibleActions.get(i).get(j).equals(rearDown)){
-									actions.add(rearDown);
-								}
-							}
-						}
-						
-						if(endConfiguration.get(i).z - agentConfiguration.get(i).z > 0){
-							
-							for(int j=0; j<possibleActions.get(i).size(); j++){
-								
-								if(possibleActions.get(i).get(j).equals(frontDown)){
-									actions.add(frontDown);
-								}
-							}
-						}
-					} else {
-						
-						if(agentConfiguration.get(i).x - endConfiguration.get(i).x > 0){
-							
-							for(int j=0; j<possibleActions.get(i).size(); j++){
-								
-								if(possibleActions.get(i).get(j).equals(leftDown)){
-									actions.add(leftDown);
-								}
-							}
-						}
-						
-						if(endConfiguration.get(i).x - agentConfiguration.get(i).x > 0){
-							
-							for(int j=0; j<possibleActions.get(i).size(); j++){
-								
-								if(possibleActions.get(i).get(j).equals(rightDown)){
-									actions.add(rightDown);
-								}
-							}
-							
+							if(getActions().get(i).get(j).equals(rightDown))
+								moves.add(rightDown);
+							else if(getActions().get(i).get(j).equals(right))
+								moves.add(right);
+							else if(getActions().get(i).get(j).equals(rightUp))
+								moves.add(rightUp);
 						}
 					}
-				} else {
-					
-					int differenceOfXs = Math.abs(agentConfiguration.get(i).x - endConfiguration.get(i).x);
-					int differenceOfZs = Math.abs(agentConfiguration.get(i).z - endConfiguration.get(i).z);
-					
-					if(differenceOfZs > differenceOfXs){
+					else if(agentConfiguration.get(i).y == endConfiguration.get(i).y){
 						
-						if(agentConfiguration.get(i).z - endConfiguration.get(i).z > 0){
+						for(int j=0; j<getActions().get(i).size(); j++){
 							
-							for(int j=0; j<possibleActions.get(i).size(); j++){
-								
-								if(possibleActions.get(i).get(j).equals(rear)){
-									actions.add(rear);
-								}
-							}
+							if(getActions().get(i).get(j).equals(right))
+								moves.add(right);
+							else if(getActions().get(i).get(j).equals(rightUp))
+								moves.add(rightUp);
+							else if(getActions().get(i).get(j).equals(rightDown))
+								moves.add(rightDown);
+						}
+					} else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
+						
+						for(int j=0; j<getActions().get(i).size(); j++){
+							
+							if(getActions().get(i).get(j).equals(rightUp))
+								moves.add(rightUp);
+							else if(getActions().get(i).get(j).equals(right))
+								moves.add(right);
+							else if(getActions().get(i).get(j).equals(rightDown))
+								moves.add(rightDown);
 						}
 						
-						if(endConfiguration.get(i).z - agentConfiguration.get(i).z > 0){
-							
-							for(int j=0; j<possibleActions.get(i).size(); j++){
-								
-								if(possibleActions.get(i).get(j).equals(front)){
-									actions.add(front);
-								}
-							}
-						}
-					} else {
-						
-						if(agentConfiguration.get(i).x - endConfiguration.get(i).x > 0){
-							
-							for(int j=0; j<possibleActions.get(i).size(); j++){
-								
-								if(possibleActions.get(i).get(j).equals(left)){
-									actions.add(left);
-								}
-							}
-						}
-						
-						if(endConfiguration.get(i).x - agentConfiguration.get(i).x > 0){
-							
-							for(int j=0; j<possibleActions.get(i).size(); j++){
-								
-								if(possibleActions.get(i).get(j).equals(right)){
-									actions.add(right);
-								}
-							}
-							
-						}
 					}
 				}
-				
-				
 			}
-		
-		possibleActions.add(actions);
+		optimalMoves.add(moves);
 		}
-		
-		return possibleActions;
+		return optimalMoves;
 	}
-	
 	//WORKS
 	private boolean checkFront(Vector3i agent){
 		
