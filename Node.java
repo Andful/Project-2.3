@@ -414,6 +414,345 @@ public class Node {
 					}
 				}
 			}
+			
+			if((agentConfiguration.get(i).z != endConfiguration.get(i).z) && (agentConfiguration.get(i).x != agentConfiguration.get(i).x)){
+				
+				if((agentConfiguration.get(i).x < endConfiguration.get(i).x) && (agentConfiguration.get(i).z < endConfiguration.get(i).z)){
+					
+					int diffX = Math.abs(agentConfiguration.get(i).x - endConfiguration.get(i).x);
+					int diffZ = Math.abs(agentConfiguration.get(i).z - endConfiguration.get(i).z);
+					
+					if(diffZ > diffX){
+						
+						if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(frontDown))
+									moves.add(frontDown);
+								else if(possibleActions.get(i).get(j).equals(front))
+									moves.add(front);
+								else if(possibleActions.get(i).get(j).equals(frontUp))
+									moves.add(frontUp);
+							}
+						}
+						else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(frontUp))
+									moves.add(frontUp);
+								else if(possibleActions.get(i).get(j).equals(front))
+									moves.add(front);
+								else if(possibleActions.get(i).get(j).equals(frontDown))
+									moves.add(frontDown);
+							}
+							
+						} else {
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(front))
+									moves.add(front);
+								else if(possibleActions.get(i).get(j).equals(frontUp))
+									moves.add(frontUp);
+								else if(possibleActions.get(i).get(j).equals(frontDown))
+									moves.add(frontDown);
+							}
+						}
+					}
+					else if(diffX >= diffZ){
+						
+						if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(rightDown))
+									moves.add(rightDown);
+								else if(possibleActions.get(i).get(j).equals(right))
+									moves.add(right);
+								else if(possibleActions.get(i).get(j).equals(rightUp))
+									moves.add(rightUp);
+							}
+						}
+						else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(rightUp))
+									moves.add(rightUp);
+								else if(possibleActions.get(i).get(j).equals(right))
+									moves.add(right);
+								else if(possibleActions.get(i).get(j).equals(rightDown))
+									moves.add(rightDown);
+							}
+						} else {
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(right))
+									moves.add(right);
+								else if(possibleActions.get(i).get(j).equals(rightUp))
+									moves.add(rightUp);
+								else if(possibleActions.get(i).get(j).equals(rightDown))
+									moves.add(rightDown);
+							}
+						}
+					}
+				}
+				
+				else if((agentConfiguration.get(i).x < endConfiguration.get(i).x) && (agentConfiguration.get(i).z > endConfiguration.get(i).z)){
+					
+					int diffX = Math.abs(agentConfiguration.get(i).x - endConfiguration.get(i).x);
+					int diffZ = Math.abs(agentConfiguration.get(i).z - endConfiguration.get(i).z);
+					
+					if(diffZ > diffX){
+						
+						if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(rearDown))
+									moves.add(rearDown);
+								else if(possibleActions.get(i).get(j).equals(rear))
+									moves.add(rear);
+								else if(possibleActions.get(i).get(j).equals(rearUp))
+									moves.add(rearUp);
+							}
+						}
+						else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(rearUp))
+									moves.add(rearUp);
+								else if(possibleActions.get(i).get(j).equals(rear))
+									moves.add(rear);
+								else if(possibleActions.get(i).get(j).equals(rearDown))
+									moves.add(rearDown);
+							}
+							
+						} else {
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(rear))
+									moves.add(rear);
+								else if(possibleActions.get(i).get(j).equals(rearUp))
+									moves.add(rearUp);
+								else if(possibleActions.get(i).get(j).equals(rearDown))
+									moves.add(rearDown);
+							}
+						}
+					}
+					else if(diffX >= diffZ){
+						
+						if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(rightDown))
+									moves.add(rightDown);
+								else if(possibleActions.get(i).get(j).equals(right))
+									moves.add(right);
+								else if(possibleActions.get(i).get(j).equals(rightUp))
+									moves.add(rightUp);
+							}
+						}
+						else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(rightUp))
+									moves.add(rightUp);
+								else if(possibleActions.get(i).get(j).equals(right))
+									moves.add(right);
+								else if(possibleActions.get(i).get(j).equals(rightDown))
+									moves.add(rightDown);
+							}
+						} else {
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(right))
+									moves.add(right);
+								else if(possibleActions.get(i).get(j).equals(rightUp))
+									moves.add(rightUp);
+								else if(possibleActions.get(i).get(j).equals(rightDown))
+									moves.add(rightDown);
+							}
+						}
+					}
+				}
+				
+				else if((agentConfiguration.get(i).x > endConfiguration.get(i).x) && (agentConfiguration.get(i).z < endConfiguration.get(i).z)){
+					
+					int diffX = Math.abs(agentConfiguration.get(i).x - endConfiguration.get(i).x);
+					int diffZ = Math.abs(agentConfiguration.get(i).z - endConfiguration.get(i).z);
+					
+					if(diffZ > diffX){
+						
+						if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(frontDown))
+									moves.add(frontDown);
+								else if(possibleActions.get(i).get(j).equals(front))
+									moves.add(front);
+								else if(possibleActions.get(i).get(j).equals(frontUp))
+									moves.add(frontUp);
+							}
+						}
+						else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(frontUp))
+									moves.add(frontUp);
+								else if(possibleActions.get(i).get(j).equals(front))
+									moves.add(front);
+								else if(possibleActions.get(i).get(j).equals(frontDown))
+									moves.add(frontDown);
+							}
+							
+						} else {
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(front))
+									moves.add(front);
+								else if(possibleActions.get(i).get(j).equals(frontUp))
+									moves.add(frontUp);
+								else if(possibleActions.get(i).get(j).equals(frontDown))
+									moves.add(frontDown);
+							}
+						}
+					}
+					else if(diffX >= diffZ){
+						
+						if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(leftDown))
+									moves.add(leftDown);
+								else if(possibleActions.get(i).get(j).equals(left))
+									moves.add(left);
+								else if(possibleActions.get(i).get(j).equals(leftUp))
+									moves.add(leftUp);
+							}
+						}
+						else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(leftUp))
+									moves.add(leftUp);
+								else if(possibleActions.get(i).get(j).equals(left))
+									moves.add(left);
+								else if(possibleActions.get(i).get(j).equals(leftDown))
+									moves.add(leftDown);
+							}
+						} else {
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(left))
+									moves.add(left);
+								else if(possibleActions.get(i).get(j).equals(leftUp))
+									moves.add(leftUp);
+								else if(possibleActions.get(i).get(j).equals(leftDown))
+									moves.add(leftDown);
+							}
+						}
+					}
+				}
+				
+				else if((agentConfiguration.get(i).x > endConfiguration.get(i).x) && (agentConfiguration.get(i).z > endConfiguration.get(i).z)){
+					
+					int diffX = Math.abs(agentConfiguration.get(i).x - endConfiguration.get(i).x);
+					int diffZ = Math.abs(agentConfiguration.get(i).z - endConfiguration.get(i).z);
+					
+					if(diffZ > diffX){
+						
+						if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(rearDown))
+									moves.add(rearDown);
+								else if(possibleActions.get(i).get(j).equals(rear))
+									moves.add(rear);
+								else if(possibleActions.get(i).get(j).equals(rearUp))
+									moves.add(rearUp);
+							}
+						}
+						else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(rearUp))
+									moves.add(rearUp);
+								else if(possibleActions.get(i).get(j).equals(rear))
+									moves.add(rear);
+								else if(possibleActions.get(i).get(j).equals(rearDown))
+									moves.add(rearDown);
+							}
+							
+						} else {
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(rear))
+									moves.add(rear);
+								else if(possibleActions.get(i).get(j).equals(rearUp))
+									moves.add(rearUp);
+								else if(possibleActions.get(i).get(j).equals(rearDown))
+									moves.add(rearDown);
+							}
+						}
+					}
+					else if(diffX >= diffZ){
+						
+						if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(leftDown))
+									moves.add(leftDown);
+								else if(possibleActions.get(i).get(j).equals(left))
+									moves.add(left);
+								else if(possibleActions.get(i).get(j).equals(leftUp))
+									moves.add(leftUp);
+							}
+						}
+						else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(leftUp))
+									moves.add(leftUp);
+								else if(possibleActions.get(i).get(j).equals(left))
+									moves.add(left);
+								else if(possibleActions.get(i).get(j).equals(leftDown))
+									moves.add(leftDown);
+							}
+						} else {
+							
+							for(int j=0; j<possibleActions.get(i).size(); j++){
+								
+								if(possibleActions.get(i).get(j).equals(left))
+									moves.add(left);
+								else if(possibleActions.get(i).get(j).equals(leftUp))
+									moves.add(leftUp);
+								else if(possibleActions.get(i).get(j).equals(leftDown))
+									moves.add(leftDown);
+							}
+						}
+					}
+				}
+			}
 		optimalMoves.add(moves);
 		}
 		return optimalMoves;
