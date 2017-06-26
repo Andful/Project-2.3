@@ -11,58 +11,24 @@ public class Node {
 	private List<Vector3i> obstacleConfiguration;
 	private List<List<Vector3i>> possibleActions;
 	private List<List<Vector3i>> optimalActions;
+	private Action idealAction;
 	
 	public static void main(String[] args){
-
+		
         List<Vector3i> endConfiguration = new ArrayList<>();
-        endConfiguration.add(new Vector3i(2,0,0));
-        endConfiguration.add(new Vector3i(3,0,0));
+        endConfiguration.add(new Vector3i(2,0,2));
+        endConfiguration.add(new Vector3i(3,0,2));
+        endConfiguration.add(new Vector3i(3,1,2));
 		
 		List<Vector3i> startConfiguration = new ArrayList<>();
 		startConfiguration.add(new Vector3i(0,0,0));
+		startConfiguration.add(new Vector3i(0,0,3));
 		startConfiguration.add(new Vector3i(1,0,0));
 		
         List<Vector3i> obstacleConfiguration = new ArrayList<>();
         
         Node firstState = new Node(startConfiguration,endConfiguration,obstacleConfiguration);
         
-       // System.out.println(firstState.getActions().get(0));
-        //System.out.println(firstState.getActions().get(1));
-       // System.out.println(firstState.getOptimalActions().get(0));
-        
-        
-        List<Vector3i> secondConfiguration = new ArrayList<>();
-        secondConfiguration.add(new Vector3i(1,1,0));
-        secondConfiguration.add(new Vector3i(1,0,0));
-        
-        Node secondState = new Node(secondConfiguration,endConfiguration,obstacleConfiguration);
-      
-     //   System.out.println(secondState.getActions().get(0));
-      //  System.out.println(secondState.getActions().get(1));
-       // System.out.println(secondState.getOptimalActions().get(0));
-        
-        List<Vector3i> thirdConfiguration = new ArrayList<>();
-        thirdConfiguration.add(new Vector3i(2,0,0));
-        thirdConfiguration.add(new Vector3i(1,0,0));
-        
-        Node thirdState = new Node(thirdConfiguration,endConfiguration,obstacleConfiguration);
-        
-        
-       // System.out.println(thirdState.getActions().get(0));
-        //System.out.println(thirdState.getActions().get(1));
-        //System.out.println(thirdState.getOptimalActions().get(0));
-        //System.out.println(thirdState.getOptimalActions().get(1));
-        
-        List<Vector3i> fourthConfiguration = new ArrayList<>();
-        fourthConfiguration.add(new Vector3i(2,0,0));
-        fourthConfiguration.add(new Vector3i(2,1,0));
-        
-        Node fourthState = new Node(fourthConfiguration,endConfiguration,obstacleConfiguration);
-        
-        System.out.println(fourthState.getActions().get(0));
-        System.out.println(fourthState.getActions().get(1));
-        System.out.println(fourthState.getOptimalActions().get(0));
-        System.out.println(fourthState.getOptimalActions().get(1));
         
 	}
 	
@@ -82,7 +48,83 @@ public class Node {
 		this.optimalActions = node.getOptimalActions();
 	}
 	
-	
+	private Action findIdealAction(){
+		
+		Action idealAction = null;
+		
+		List<Integer> heuristics = new ArrayList<>(); //manhattan heuristic value of each cube
+		
+		for(int i=0; i<agentConfiguration.size(); i++){
+		
+			int heuristic = Math.abs(agentConfiguration.get(i).x - endConfiguration.get(i).x)
+					+ Math.abs(agentConfiguration.get(i).z - endConfiguration.get(i).z)
+					+ Math.abs(agentConfiguration.get(i).y - endConfiguration.get(i).y);
+			
+			heuristics.add(heuristic);
+		}
+		
+		int dummyIndex = 0;
+		int dummyHeuristic = 0;
+		boolean checker = false;
+		
+		for(int i=0; i<heuristics.size(); i++){
+			
+			if(heuristics.get(i) > dummyHeuristic){
+				dummyHeuristic = heuristics.get(i);
+				dummyIndex = i;
+				checker = true;
+			}
+		}
+		
+		if(checker){
+			
+			for(int i=0; i<optimalActions.get(dummyIndex).size(); i++){
+				
+				Action testingAction = new Action(optimalActions.get(dummyIndex).get(i), dummyIndex);
+				
+				idealAction = simulate(testingAction);
+				
+				if(idealAction == null)
+					continue;
+				else
+					return idealAction;
+			}
+		} else {
+			
+			int randomIndex = (int) (Math.random()*agentConfiguration.size());
+			
+			for(int i=0; i<optimalActions.get(randomIndex).size(); i++){
+				
+				Action testingAction = new Action(optimalActions.get(randomIndex).get(i), randomIndex);
+				
+				idealAction = simulate(testingAction);
+				
+				if(idealAction == null)
+					continue;
+				else
+					return idealAction;
+			}
+			
+		}
+		
+		if(idealAction == null){
+			
+			try{
+				
+				int randomIndex = (int) (Math.random()*agentConfiguration.size());
+				int randomActionIndex = (int) (Math.random()*optimalActions.get(randomIndex).size());
+				
+				Action randomAction = new Action(optimalActions.get(randomIndex).get(randomActionIndex), randomIndex);
+				
+				idealAction.set(randomAction);
+			} catch(IndexOutOfBoundsException e){
+				System.out.println("No possible optimal actions");
+				return null;
+			}
+		}
+		
+		return idealAction;
+	}
 	//must check both obstacle and agent cases to work properly!!!
 	//WORKS FOR AGENTS!!!
 	private List<List<Vector3i>> getAvailableActions(){
@@ -226,7 +268,7 @@ public class Node {
 		return possibleActions;
 	}
 
-	//WORKS FOR NON DIAGONAL, non diagonal not implemented yet
+	//WORKS FOR DIAGONAL THUS FAR
 	private List<List<Vector3i>> getOptimalMoves(){
 		
 		Vector3i rearDown = new Vector3i(0,-1,-1);
@@ -415,7 +457,7 @@ public class Node {
 				}
 			}
 			
-			if((agentConfiguration.get(i).z != endConfiguration.get(i).z) && (agentConfiguration.get(i).x != agentConfiguration.get(i).x)){
+			if((agentConfiguration.get(i).z != endConfiguration.get(i).z) || (agentConfiguration.get(i).x != agentConfiguration.get(i).x)){
 				
 				if((agentConfiguration.get(i).x < endConfiguration.get(i).x) && (agentConfiguration.get(i).z < endConfiguration.get(i).z)){
 					
@@ -485,6 +527,8 @@ public class Node {
 									moves.add(right);
 								else if(possibleActions.get(i).get(j).equals(rightDown))
 									moves.add(rightDown);
+								else if(possibleActions.get(i).get(j).equals(frontUp)) //DELETE THIS IF IT MESSES THE REST!
+									moves.add(frontUp);
 							}
 						} else {
 							
@@ -757,6 +801,158 @@ public class Node {
 		}
 		return optimalMoves;
 	}
+	
+	private Action simulate(Action action){
+		
+		List<Vector3i> dummy = new ArrayList<>();
+		
+		for(int i=0; i<agentConfiguration.size(); i++){
+			
+			dummy.add(agentConfiguration.get(i));
+		}
+		
+		dummy.get(action.getAgentIndex()).add(action.getAction());
+		
+		Node simulationState = new Node(dummy,endConfiguration,obstacleConfiguration);
+		
+		if(simulationState.agentsAreTogether()){
+			return action;
+		}
+		
+		return null;
+		
+	}
+	
+	private boolean agentsAreTogether(){
+		
+		boolean[] checker = new boolean[agentConfiguration.size()];
+		boolean finalCheck = true;
+		
+		for(int i=0; i<agentConfiguration.size(); i++){
+			
+			if(checkBottom(agentConfiguration.get(i)) && checkFront(agentConfiguration.get(i))){
+				checker[i] = true;
+				continue;
+			}
+			
+			if(checkBottom(agentConfiguration.get(i)) && checkRear(agentConfiguration.get(i))){
+				checker[i] = true;
+				continue;
+			}
+			
+			if(checkBottom(agentConfiguration.get(i)) && checkLeft(agentConfiguration.get(i))){
+				checker[i] = true;
+				continue;
+			}
+				
+			if(checkBottom(agentConfiguration.get(i)) && checkRight(agentConfiguration.get(i))){
+				checker[i] = true;
+				continue;
+			}
+			
+			if(checkTop(agentConfiguration.get(i)) && checkRear(agentConfiguration.get(i))){
+				checker[i] = true;
+				continue;
+			}
+			
+			if(checkTop(agentConfiguration.get(i)) && checkLeft(agentConfiguration.get(i))){
+				checker[i] = true;
+				continue;
+			}
+			
+			if(checkTop(agentConfiguration.get(i)) && checkRight(agentConfiguration.get(i))){
+				checker[i] = true;
+				continue;
+			}
+			
+			if(checkTop(agentConfiguration.get(i)) && checkFront(agentConfiguration.get(i))){
+				checker[i] = true;
+				continue;
+			}
+			
+			if(checkLeft(agentConfiguration.get(i)) && checkRight(agentConfiguration.get(i))){
+				checker[i] = true;
+				continue;
+			}
+			
+			if(checkFront(agentConfiguration.get(i)) && checkRear(agentConfiguration.get(i))){
+				checker[i] = true;
+				continue;
+			}
+			
+			if(checkLeft(agentConfiguration.get(i)) && checkRight(agentConfiguration.get(i))){
+				checker[i] = true;
+				continue;
+			}
+			
+			if(checkLeft(agentConfiguration.get(i)) && checkFront(agentConfiguration.get(i))){
+				checker[i] = true;
+				continue;
+			}
+			
+			if(checkLeft(agentConfiguration.get(i)) && checkRear(agentConfiguration.get(i))){
+				checker[i] = true;
+				continue;
+			}
+			
+			if(checkRight(agentConfiguration.get(i)) && checkFront(agentConfiguration.get(i))){
+				checker[i] = true;
+				continue;
+			}
+			
+			if(checkRight(agentConfiguration.get(i)) && checkRear(agentConfiguration.get(i))){
+				checker[i] = true;
+				continue;
+			}
+			
+		}
+		
+		for(int i=0; i<checker.length; i++){
+			
+			if(checker[i] == false){
+				
+				if(checkTop(agentConfiguration.get(i))){
+					checker[i] = true;
+					continue;
+				}
+				
+				if(checkBottom(agentConfiguration.get(i))){
+					checker[i] = true;
+					continue;
+				}
+				
+				if(checkFront(agentConfiguration.get(i))){
+					checker[i] = true;
+					continue;
+				}
+				
+				if(checkRear(agentConfiguration.get(i))){
+					checker[i] = true;
+					continue;
+				}
+				
+				if(checkLeft(agentConfiguration.get(i))){
+					checker[i] = true;
+					continue;
+				}
+				
+				if(checkRight(agentConfiguration.get(i))){
+					checker[i] = true;
+					continue;
+				}
+			}
+		}
+		
+		for(int i=0; i<checker.length; i++){
+			
+			if(checker[i] == false){
+				finalCheck = false;
+			}
+		}
+		
+		return finalCheck;
+	}
+	
 	//WORKS
 	private boolean checkFront(Vector3i agent){
 		
@@ -1253,5 +1449,47 @@ public class Node {
 		this.optimalActions = optimalActions;
 	}
 
+	public Action getIdealAction() {
+		return idealAction;
+	}
+
+	public void setIdealAction(Action idealAction) {
+		this.idealAction = idealAction;
+	}
+
+
+
+	private class Action{
+		
+		private Vector3i action;
+		private int agentIndex;
+		
+		public Action(Vector3i action, int agentIndex){
+			this.action = action;
+			this.agentIndex = agentIndex;
+		}
+
+		public Vector3i getAction() {
+			return action;
+		}
+
+		public void setAction(Vector3i action) {
+			this.action = action;
+		}
+
+		public int getAgentIndex() {
+			return agentIndex;
+		}
+
+		public void setAgentIndex(int agentIndex) {
+			this.agentIndex = agentIndex;
+		}
+		
+		public void set(Action a){
+			this.action = a.getAction();
+			this.agentIndex = a.getAgentIndex();
+		}
+		
+	}
 	
 }
