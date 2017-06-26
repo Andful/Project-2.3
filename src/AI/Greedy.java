@@ -17,6 +17,24 @@ public class Greedy implements PathFindingAlgorithm {
     private List<Vector3i> obstacleConfiguration;
     private List<Node> path;
 
+    public static void main(String[] args){
+
+        List<Vector3i> startConfiguration = new ArrayList<>();
+        startConfiguration.add(new Vector3i(0,0,0));
+        startConfiguration.add(new Vector3i(1,0,0));
+
+        List<Vector3i> endConfiguration = new ArrayList<>();
+        endConfiguration.add(new Vector3i(5,0,2));
+        endConfiguration.add(new Vector3i(5,0,3));
+
+        List<Vector3i> obstacleConfiguration = new ArrayList<>();
+
+        Greedy pathfinder = new Greedy(startConfiguration,endConfiguration,obstacleConfiguration);
+
+
+
+    }
+
     public Greedy(List<Vector3i> agentConfiguration, List<Vector3i> endConfiguration, List<Vector3i> obstacleConfiguration){
         this.agentConfiguration = agentConfiguration;
         this.endConfiguration = endConfiguration;
@@ -54,7 +72,7 @@ public class Greedy implements PathFindingAlgorithm {
 
         for(int i=0; i<integerConfiguration.size(); i++){
 
-            floatConfiguration.add(new Vector3f((float) integerConfiguration.get(i).x, (float) integerConfiguration.get(i).y, (float) integerConfiguration.get(i).z);
+            floatConfiguration.add(new Vector3f((float) integerConfiguration.get(i).x, (float) integerConfiguration.get(i).y, (float) integerConfiguration.get(i).z));
         }
 
         return floatConfiguration;
@@ -62,23 +80,17 @@ public class Greedy implements PathFindingAlgorithm {
 
     public List<Node> computePath(){
 
+        int iterations = 0;
         List<Node> path = new ArrayList<>();
 
         Node current = new Node(firstState);
 
-        while(!current.getAgentConfiguration().equals(current.getEndConfiguration())){
+        while(!current.getAgentConfiguration().equals(endConfiguration) && iterations < 100){
+            iterations++;
 
             Node.Action action = current.getIdealAction();
 
-            List<Vector3i> dummyList = new ArrayList<>();
-
-            for(int i=0; i<agentConfiguration.size(); i++){
-                dummyList.add(agentConfiguration.get(i));
-            }
-
-            dummyList.get(action.getAgentIndex()).add(action.getAction());
-
-            current = new Node(dummyList,endConfiguration,obstacleConfiguration); //current becomes the next state
+            current.getAgentConfiguration().get(action.getAgentIndex()).add(action.getAction());
 
             path.add(current);
         }
