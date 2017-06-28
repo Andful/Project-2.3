@@ -279,6 +279,6 @@ public class LevelEditor extends JFrame {
         setVisible(true);
     }
     public static void main(String[] args) {
-        new LevelEditor(9,9,9);
+        new LevelEditor(1,7,6);
     }
 }

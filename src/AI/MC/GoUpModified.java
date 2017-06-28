@@ -20,6 +20,7 @@ import static java.lang.Math.round;
  */
 public class GoUpModified implements PathFindingAlgorithm
 {
+
     public static class MyComparator implements Comparator<Vector3i>
     {
         List<Vector2i> path;

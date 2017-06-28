@@ -47,7 +47,9 @@ public class Main
             {
                 new Thread(){public void run()
                 {
+                    long time=System.currentTimeMillis();
                     pfa.compute(enviroment.environmentSize,enviroment.agentStartConfigurations,enviroment.agentEndConfigurations,enviroment.obstaclesPositions,result);
+                    System.out.println("time="+(System.currentTimeMillis()-time));
                 }
                 }.start();
             }
@@ -102,6 +104,6 @@ public class Main
             }
         };
         Vector3f size=new Vector3f(c,1,c);
-        new Main().run(new GoUpModified(),"res\\levels\\1");
+        new Main().run(new GoUp(),"res\\levels\\1");
     }
 }
