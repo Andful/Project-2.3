@@ -1,4 +1,4 @@
-package AI.MC;
+package AI.MultiAgentPathFinding;
 
 import org.joml.Vector3i;
 
@@ -20,7 +20,6 @@ public class mainMethods {
 	}
 	
 	static int whoCounter = 0;
-	static int numberOfClusters;
 	
 	static List<List<Agent>> clusterArrayLists(List<Agent> all){
 		
@@ -62,30 +61,29 @@ public class mainMethods {
     	for (int a = 0; a < clusters.size(); a++){
     		for (int b = 0; b < clusters.get(a).size(); b++){
     			System.out.print(clusters.get(a).get(b).getID() + " ");
-    			numberOfClusters = a;
     		}
     		System.out.println(" ");
-    		
     	}
     	
     //	System.out.println(" LINE 64 ");
     	System.out.println(" ");
-    	numberOfClusters++;
-    	System.out.println(" number of clusters = " + numberOfClusters );
     	
     	return clusters;
     			
 	}
 	
 	
-     static List<startAndEnd> findEndConfig(List<Agent> all, List<List<Agent>> start, List<List<Agent>> end){
+     static List<List<Vector3i>> findEndConfig(List<Agent> all, List<List<Agent>> start, List<List<Agent>> end){
 		
-    	 List<startAndEnd> whoGoesWhere = new ArrayList<startAndEnd>();
-    	
-    	 for (int h = 0; h < numberOfClusters; h++){		 
-	    		whoGoesWhere.add(new startAndEnd(new ArrayList<Vector3i>(), new ArrayList<Vector3i>()));
-	    	}
+    	 List<List<Vector3i>> whoGoesWhere = new ArrayList<List<Vector3i>>();
+			
+		 for (int v = 0; v < all.size(); v++ ){
 			 
+		 whoGoesWhere.add(new ArrayList<Vector3i>());
+		 
+		 }
+	      	 
+    	 
     	  int[] clusterSizes = new int[start.size()];
     	  
     	  for (int i = 0; i < start.size(); i++){
@@ -341,17 +339,16 @@ public class mainMethods {
     			 }
     		//	 System.out.println(" ");
     			 
-    	    	
-    			 
+    	    			 
     			 for (int c = 0; c < bestMatches.size(); c++){
     				 
     				 for (int w = 0; w < start.get(table.get(0).get((int) bestMatches.get(c).y).getIndex()).size(); w++){
     					 
-    					 whoGoesWhere.get(whoCounter).getStart().add(start.get(table.get(0).get((int) bestMatches.get(c).y).getIndex()).get(w).getPosition());
-    				     whoGoesWhere.get(whoCounter).getEnd().add(end.get(table.get(1).get((int) bestMatches.get(c).y).getIndex()).get(w).getPosition());
-    				    
+    					 whoGoesWhere.get(whoCounter).add(start.get(table.get(0).get((int) bestMatches.get(c).y).getIndex()).get(w).getPosition());
+    				     whoGoesWhere.get(whoCounter).add(end.get(table.get(1).get((int) bestMatches.get(c).y).getIndex()).get(w).getPosition());
+    				     whoCounter++; 
     				 }
-    				 whoCounter++; 
+    			  
     			 }
     			
     			 
@@ -461,22 +458,6 @@ public class mainMethods {
 		
 	}
 	
-	}
-	public static List<startAndEnd> getStartAndEnd(List<Vector3i> startConfiguration,List<Vector3i> endConfiguration)
-	{
-		List<Agent> start= new ArrayList<>(startConfiguration.size());
-		List<Agent> end= new ArrayList<>(endConfiguration.size());
-		for(Vector3i v:startConfiguration)
-		{
-			start.add(new Agent(start.size(),v,0));
-		}
-		for(Vector3i v:endConfiguration)
-		{
-			end.add(new Agent(end.size(),v,0));
-		}
-		mainMethods.findClusters(start);
-		mainMethods.findClusters(end);
-		return mainMethods.findEndConfig(start,mainMethods.clusterArrayLists(start), mainMethods.clusterArrayLists(end));
 	}
 	
 }

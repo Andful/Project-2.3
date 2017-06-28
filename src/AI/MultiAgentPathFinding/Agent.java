@@ -1,4 +1,4 @@
-package AI.MC;
+package AI.MultiAgentPathFinding;
 
 import org.joml.Vector3i;
 

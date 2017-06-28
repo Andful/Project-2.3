@@ -1,6 +1,7 @@
 import AI.BFS;
 import AI.GoUp;
-import AI.MultiAgentPathFinding.MultiAgent;
+//import AI.MultiAgentPathFinding.MultiAgent;
+import AI.MC.GoUpModified;
 import AI.Node;
 import AI.PathFindingAlgorithm;
 import GUI.SerialModifier;
@@ -47,7 +48,6 @@ public class Main
                 new Thread(){public void run()
                 {
                     pfa.compute(enviroment.environmentSize,enviroment.agentStartConfigurations,enviroment.agentEndConfigurations,enviroment.obstaclesPositions,result);
-                    System.out.println("finished");
                 }
                 }.start();
             }
@@ -56,7 +56,6 @@ public class Main
                 sm.update();
                 while(count<result.size() && mouse.getRight())
                 {
-                    System.out.println(result.size());
                     List<PathFindingAlgorithm.Movement> movment = result.get(count);
                     sm.setPosition(movment);
                     count++;
@@ -103,7 +102,6 @@ public class Main
             }
         };
         Vector3f size=new Vector3f(c,1,c);
-        System.out.println(endConfiguration);
-        new Main().run(new Node(),"res\\levels\\1");
+        new Main().run(new GoUpModified(),"res\\levels\\1");
     }
 }

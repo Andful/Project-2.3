@@ -1,6 +1,4 @@
-package AI.MC;
-
-
+package AI.MultiAgentPathFinding;
 
 import org.joml.Vector3i;
 
@@ -78,15 +76,16 @@ public class testing {
 	//	mainMethods.clusterArrayLists(all);
 	//	mainMethods.clusterArrayLists(end);
 	
-	    List<startAndEnd> whoGoesWhere = new ArrayList<startAndEnd>();
+	    List<List<Vector3i>> whoGoesWhere = new ArrayList<List<Vector3i>>();
 		    
 		whoGoesWhere = mainMethods.findEndConfig(all, mainMethods.clusterArrayLists(all), mainMethods.clusterArrayLists(end));
 			
-		
-     			System.out.println(whoGoesWhere);
-     			System.out.println("");
-		
+		for (int i = 0; i < whoGoesWhere.size(); i++){
+			for (int j = 0; j < whoGoesWhere.get(i).size(); j++){
+				System.out.print(whoGoesWhere.get(i).get(j) + " ");
+			}
+			System.out.println(" ");
+		}
 	}
 
 }
-
