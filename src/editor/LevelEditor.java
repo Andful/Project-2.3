@@ -179,7 +179,7 @@ public class LevelEditor extends JFrame {
                                              public void mouseClicked(MouseEvent e) {
                                                  int x1=e.getX()/blockSize;
                                                  int y1=e.getY()/blockSize;
-                                                 if(e.getButton()==MouseEvent.BUTTON1 && x1>=0 && x1<x && y1>=0 && y1<y)
+                                                 if(e.getButton()==MouseEvent.BUTTON1 && x1>=0 && x1<x && y1>=0 && y1<z)
                                                  {
                                                     if(level[x1][height][y1]!=EMPTY)
                                                     {

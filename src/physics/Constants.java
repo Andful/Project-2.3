@@ -15,6 +15,8 @@ public class Constants
     static final float g=0.1f;
     static final float h=0.1f;
     static final float TOL=0.01f;
+    static final float GRAVITY=0.1f;
+    static final float MASS=1f;
 
     static Vector3f getAcceleration(Vector3f direction,float surfaceTouching)
     {

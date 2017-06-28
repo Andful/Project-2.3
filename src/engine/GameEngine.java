@@ -1,9 +1,7 @@
 package engine;
 
 import com.sun.j3d.utils.universe.SimpleUniverse;
-import engine.gameObjects.Agent;
-import engine.gameObjects.Floor;
-import engine.gameObjects.Obstacle;
+import engine.gameObjects.*;
 import engine.input.special.Keyboard;
 import engine.input.special.Mouse;
 
@@ -48,11 +46,12 @@ public class GameEngine<AgentId> extends Canvas3D
         }
     };
 
-    public GameEngine(IGameLogic<AgentId> gl,List<AgentId> agents,List<Vector3f> position,List<Vector3f> obstacle,Vector2f levelDimension)
+    public GameEngine(IGameLogic<AgentId> gl,List<AgentId> agents,List<Vector3f> position,List<Vector3f> obstacle,List<Vector3f> endPosition,Vector2f levelDimension)
     {
         super(SimpleUniverse.getPreferredConfiguration());
         Agent.loadMesh(this);
         Obstacle.loadMesh(this);
+        Start.loadMesh(this);
         this.gl=gl;
         this.obstacle=obstacle;
         setPreferredSize(new Dimension(640,480));
@@ -73,11 +72,24 @@ public class GameEngine<AgentId> extends Canvas3D
                 ag.update();
                 agentPosition.put(a,ag);
                 camera.addChild(ag);
+
+                Start st=new Start();
+                st.position=p;
+                st.update();
+                camera.addChild(st);
             }
             for(Vector3f bp:obstacle)
             {
                 Obstacle ag=new Obstacle(bp);
                 camera.addChild(ag);
+            }
+            End.loadMesh(this);
+            for(Vector3f end:endPosition)
+            {
+                End e=new End();
+                e.position=end;
+                e.update();
+                camera.addChild(e);
             }
         }
         universe.getViewingPlatform().setNominalViewingTransform();
@@ -108,35 +120,6 @@ public class GameEngine<AgentId> extends Canvas3D
 
         camera.update();
         gl.update(pm,mouse,keyboard);
-    }
-    public static void main(String[] args)
-    {
-        JFrame frame= new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(new GameEngine<Integer>(new IGameLogic<Integer>()
-        {
-            int i=0;
-            @Override
-            public void update(PositionModifier<Integer> ge, Mouse mouse, Keyboard keyboard)
-            {
-                ge.setPosition(0,new Vector3f(0,0,-1));
-            }
-        }, new ArrayList<Integer>()
-        {
-            {
-                add(0);
-                add(1);
-            }
-        },
-                new ArrayList<Vector3f>()
-                {
-                    {
-                        add(new Vector3f(0, 10, 0));
-                        add(new Vector3f(0, 11, 0));
-                    }
-                }, new ArrayList<Vector3f>(){{add(new Vector3f());}}, new Vector2f(10, 10)));
-        frame.pack();
-        frame.setVisible(true);
     }
 }
 

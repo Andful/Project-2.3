@@ -1,5 +1,7 @@
 import AI.BFS;
 import AI.GoUp;
+import AI.MultiAgentPathFinding.MultiAgent;
+import AI.Node;
 import AI.PathFindingAlgorithm;
 import GUI.SerialModifier;
 import Util.EnvironmentFloat;
@@ -31,6 +33,11 @@ public class Main
     public void run(PathFindingAlgorithm pfa,String enviromentPath) throws Exception
     {
         EnvironmentFloat enviroment=new EnvironmentFloat(new java.io.File(enviromentPath));
+        run(pfa,enviroment);
+    }
+    public void run(PathFindingAlgorithm pfa,EnvironmentFloat enviroment)
+    {
+
         JFrame frame= new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         Core core;
@@ -40,7 +47,7 @@ public class Main
                 new Thread(){public void run()
                 {
                     pfa.compute(enviroment.environmentSize,enviroment.agentStartConfigurations,enviroment.agentEndConfigurations,enviroment.obstaclesPositions,result);
-
+                    System.out.println("finished");
                 }
                 }.start();
             }
@@ -49,6 +56,7 @@ public class Main
                 sm.update();
                 while(count<result.size() && mouse.getRight())
                 {
+                    System.out.println(result.size());
                     List<PathFindingAlgorithm.Movement> movment = result.get(count);
                     sm.setPosition(movment);
                     count++;
@@ -63,7 +71,7 @@ public class Main
                 }
             }
         },
-                enviroment.agentStartConfigurations, enviroment.obstaclesPositions,new Vector2f(enviroment.environmentSize.x,enviroment.environmentSize.z)));
+                enviroment.agentStartConfigurations, enviroment.obstaclesPositions,enviroment.agentEndConfigurations,new Vector2f(enviroment.environmentSize.x,enviroment.environmentSize.z)));
         frame.pack();
         frame.setVisible(true);
         sm=new SerialModifier(core);
@@ -71,6 +79,31 @@ public class Main
     }
     public static void main(String[] args) throws Exception
     {
-        new Main().run(new GoUp(),"res\\levels\\1\\");
+        int c=3;
+        List<Vector3f> startConfiguration= new LinkedList<Vector3f>()
+        {
+            {
+                add(new Vector3f(0,0,0));
+                for(int i=1;i<c;i++)
+                {
+                    add(new Vector3f(0,0,i));
+                    add(new Vector3f(i,0,0));
+                }
+            }
+        };
+        List<Vector3f> endConfiguration= new LinkedList<Vector3f>()
+        {
+            {
+                add(new Vector3f(c-1,0,c-1));
+                for(int i=0;i<c-1;i++)
+                {
+                    add(new Vector3f(c-1,0,i));
+                    add(new Vector3f(i,0,c-1));
+                }
+            }
+        };
+        Vector3f size=new Vector3f(c,1,c);
+        System.out.println(endConfiguration);
+        new Main().run(new Node(),"res\\levels\\1");
     }
 }

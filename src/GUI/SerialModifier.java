@@ -44,47 +44,4 @@ public class SerialModifier
             }
         }
     }
-    public static void main(String[] args)
-    {
-        JFrame frame= new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Core core;
-        final List<SerialModifier> sm=new LinkedList<>();
-        frame.add(core=new Core<Integer>(new IGameLogic<Integer>()
-        {
-            boolean hi=false;
-            public void update(engine.PositionModifier<Integer> ge, Mouse mouse, Keyboard keyboard)
-            {
-                if(!sm.isEmpty())
-                {
-                    sm.get(0).update();
-                    if(!hi && mouse.getRight())
-                    {
-                        hi=true;
-                        sm.get(0).setPosition(2,new Vector3f(0,0,0));
-                        sm.get(0).setPosition(1,new Vector3f(0,0,0));
-                        sm.get(0).setPosition(0,new Vector3f(0,0,0));
-                    }
-                }
-            }
-        }, new ArrayList<Integer>()
-        {
-            {
-                add(0);
-                add(1);
-                add(2);
-            }
-        },
-                new ArrayList<Vector3f>()
-                {
-                    {
-                        add(new Vector3f(0, 0, -1));
-                        add(new Vector3f(0, 1, -1));
-                        add(new Vector3f(0, 2, -1f));
-                    }
-                }, new ArrayList<Vector3f>(), new Vector2f(10, 10)));
-        frame.pack();
-        frame.setVisible(true);
-        sm.add(new SerialModifier(core));
-    }
 }

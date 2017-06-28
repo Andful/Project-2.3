@@ -16,13 +16,25 @@ public class BFS implements PathFindingAlgorithm
     public final static int AGENT=Integer.MAX_VALUE;
     public static class Agent<Integer>
     {
-        Agent(Integer id, Vector3i pos)
+        public Agent(Integer id, Vector3i pos)
         {
             this.id=id;
             this.pos=pos;
         }
-        Integer id;
-        Vector3i pos;
+        public Integer id;
+        public Vector3i pos;
+        public Object clone()
+        {
+            return new Agent<Integer>(id,pos);
+        }
+        public int hashCode()
+        {
+            return pos.hashCode();
+        }
+        public boolean equals(Object o)
+        {
+            return pos.equals(((Agent)o).pos);
+        }
     }
     @Override
     public void compute(Vector3f _size,List<Vector3f> _startPosition,List<Vector3f> _endPosition,List<Vector3f> _obstacle,List<List<Movement>> result)

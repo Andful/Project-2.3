@@ -52,4 +52,42 @@ public class Array3D<E>
         a.set(new Vector3i(),5);
         System.out.println(a.get(new Vector3i()));
     }
+
+    public Object clone()
+    {
+        Array3D<E> result=new Array3D<E>(size);
+        for(int i=0;i<size.x;i++)
+        {
+            for(int j=0;j<size.y;j++)
+            {
+                for(int k=0;k<size.z;k++)
+                {
+                    result.memory[i][j][k]=memory[i][j][k];
+                }
+            }
+        }
+        return result;
+    }
+    public int hashCode()
+    {
+        return memory[0][0][0].hashCode();
+    }
+    public boolean equals(Object o)
+    {
+        Array3D<E> toCompare=(Array3D<E>)o;
+        for(int i=0;i<size.x;i++)
+        {
+            for(int j=0;j<size.y;j++)
+            {
+                for (int k = 0; k < size.z; k++)
+                {
+                    if(memory[i][j][k]!=toCompare.memory[i][j][k])
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
 }

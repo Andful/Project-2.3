@@ -2,7 +2,6 @@ package physics;
 
 import engine.GameEngine;
 import engine.IGameLogic;
-import engine.PositionModifier;
 import engine.gameObjects.Agent;
 import engine.input.special.Keyboard;
 import engine.input.special.Mouse;
@@ -10,19 +9,24 @@ import engine.input.special.Mouse;
 import javax.swing.*;
 import javax.vecmath.Vector2f;
 import javax.vecmath.Vector3f;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.function.Function;
+
 import static java.lang.Math.*;
 import static physics.Constants.*;
 
 /**
  * Created by Andrea Nardi on 6/16/2017.
  */
-public class Core<AgentId> extends GameEngine<AgentId>
+public class Core2<AgentId> extends GameEngine<AgentId>
 {
     public List<ToUpdate> tbu=new LinkedList<>();
-    public Core(IGameLogic<AgentId> gl, List<AgentId> agents, List<Vector3f> position, List<Vector3f> obstacle, List<Vector3f> endPosition, Vector2f levelDimension)
+    public Core2(IGameLogic<AgentId> gl, List<AgentId> agents, List<Vector3f> position, List<Vector3f> obstacle,List<Vector3f> endConfiguration, Vector2f levelDimension)
     {
-        super(gl, agents, position, obstacle,endPosition , levelDimension);
+        super(gl, agents, position, obstacle,endConfiguration, levelDimension);
         pm=new PositionModifier(pm);
     }
     public void update()
@@ -72,9 +76,9 @@ public class Core<AgentId> extends GameEngine<AgentId>
             this.pm = pm;
         }
 
-        public void setPosition(AgentId aid, Vector3f v)
+        public void setPosition(AgentId aid, Vector3f endPosition)
         {
-            List<Vector3f> blocks = new ArrayList<>(agentPosition.keySet().size());
+            List<Vector3f> blocks = new ArrayList<>(agentPosition.keySet().size()+obstacle.size());
             for (AgentId agent : agentPosition.keySet())
             {
                 if(!aid.equals(agent))
@@ -87,9 +91,7 @@ public class Core<AgentId> extends GameEngine<AgentId>
                 blocks.add(obst);
             }
             Agent agent = agentPosition.get(aid);
-            Vector3f startPosition=new Vector3f(agent.position);
-            List<Vector3f> position;
-            Vector3f velocityDirection=new Vector3f(v)
+            Vector3f velocityDirection=new Vector3f(endPosition)
             {
                 {
                     sub(agent.position);
@@ -97,37 +99,43 @@ public class Core<AgentId> extends GameEngine<AgentId>
                     normalize();
                 }
             };
-            Vector3f startVelocity=new Vector3f(velocityDirection)
+            float squareDistance=(float)(pow(agent.position.x-endPosition.x,2)+pow(agent.position.z-endPosition.z,2));
+            float h=-Constants.h;
+            float t=0;
+            List<Vector3f> position=new LinkedList<Vector3f>(){{add(endPosition);}};
+            List<Vector3f> velocity=new LinkedList<Vector3f>(){{add(new Vector3f());}};
+            Function<Vector3f,Vector3f> a=new Function<Vector3f, Vector3f>()
             {
+                public Vector3f apply(Vector3f pos)
                 {
-                    scale(
-                            (float)sqrt(2*new Vector3f(agent.position)
-                            {
-                                {
-                                    sub(v);
-                                    y=0;
-                                }
-                            }.length())
-                    );
+                    return getAcceleration(pos,velocityDirection,blocks);
                 }
             };
-            float totalTime=startVelocity.length()/acceleration;
-            position=new ArrayList<Vector3f>((int)(totalTime/h)+1);
-            for(float i=0;i<totalTime;i+=h)
             {
-                final float time=i;
-                Vector3f newPosition=new Vector3f(startPosition){{
-                    add(new Vector3f(startVelocity){{scale(time);}});
-                    add(new Vector3f(velocityDirection){{scale(-time*time/2);}});
-                }};
-                if(position.size()>0)
+                while(position.size()<3)
                 {
-                    newPosition.y = position.get(position.size() - 1).y;
+                    {
+                        Vector3f p0=position.get(position.size()-1);
+                        Vector3f v0=velocity.get(velocity.size()-1);
+                        Vector3f k0=new Vector3f(a.apply(p0)){{scale(h);}};
+                        Vector3f l0=new Vector3f(v0){{scale(h);}};
+                        Vector3f k1=new Vector3f(a.apply(new Vector3f(p0){{add(new Vector3f());}})){{scale(h);}};
+                        Vector3f l1=new Vector3f(position.get(position.size())){{add(new Vector3f(k0){{scale(0.5f);}});scale(h);}};
+                        //Vector3f k2=new Vector3f(acceleration){{scale(h);}};
+                        Vector3f l2=new Vector3f(position.get(position.size())){{add(new Vector3f(k1){{scale(0.5f);}});scale(h);}};
+                        //Vector3f k3=new Vector3f(acceleration){{scale(h);}};
+                        //Vector3f l3=new Vector3f(position.get(position.size())){{add(new Vector3f(k2){{scale(0.5f);}});scale(h);}};
+                    }
                 }
-                readjustPosition(newPosition,velocityDirection,blocks);
-                position.add(newPosition);
+                t+=h;
             }
-            Vector3f newPosition=new Vector3f(v);
+            do
+            {
+
+                //readjustPosition(newPosition,velocityDirection,blocks);
+            }
+            while(pow(agent.position.x-endPosition.x,2)+pow(agent.position.z-endPosition.z,2)<squareDistance);
+            Vector3f newPosition=new Vector3f();
             newPosition.y=agent.position.y;
             if(position.size()>0)
             {
@@ -264,5 +272,23 @@ public class Core<AgentId> extends GameEngine<AgentId>
             }
             return true;
         }
+    }
+    public Vector3f getAcceleration(Vector3f position,Vector3f velocityDirection,List<Vector3f> blocks)
+    {
+        Vector3f accelerationDirection=new Vector3f(velocityDirection){{scale(-1);}};
+        float surfaceArea=0;
+        for(Vector3f block:blocks)
+        {
+            if(abs(position.y-block.y)>1-TOL && abs(position.y-block.y)>1+TOL)
+            {
+                if(abs(position.x-block.x)<1 && abs(position.z-block.z)<1)
+                {
+                    surfaceArea+=abs(position.x-block.x)*abs(position.z-block.z);
+                }
+            }
+        }
+        float fourceModule=GRAVITY*MASS*dynamicFriction/surfaceArea;
+        float accelerationModule=fourceModule/MASS;
+        return new Vector3f(accelerationDirection){{scale(accelerationModule);}};
     }
 }

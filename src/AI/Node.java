@@ -3,14 +3,19 @@ package AI;
 
 import org.joml.Vector3i;
 
+import javax.vecmath.Vector3f;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+
+import static java.lang.Math.round;
 
 /**
  * Created by Savvas on 6/26/2017.
  */
 
-public class Node {
+public class Node implements  PathFindingAlgorithm {
 
     protected List<Vector3i> agentConfiguration;
     protected List<Vector3i> endConfiguration;
@@ -42,48 +47,44 @@ public class Node {
         obstacleConfiguration.add(new Vector3i(10,0,1));
 
 
-        Node firstState = new Node(startConfiguration,endConfiguration,obstacleConfiguration);
-
-        //System.out.println(firstState.getActions().get(0));
-        //System.out.println(firstState.getActions().get(1));
-        //System.out.println(firstState.getActions().get(2));
-        System.out.println(firstState.getOptimalActions().get(0));
-        System.out.println(firstState.getOptimalActions().get(1));
-        System.out.println(firstState.getOptimalActions().get(2));
-        System.out.println(firstState.getIdealAction());
+        compute(new Vector3i(11,11,11),startConfiguration,endConfiguration,obstacleConfiguration,null);
 
     }
+    public void compute(Vector3f _size, List<Vector3f> _startPosition, List<Vector3f> _endPosition, List<Vector3f> _obstacle, List<List<PathFindingAlgorithm.Movement>> result)
+    {
+        Vector3i size=new Vector3i(round(_size.x),round(_size.y),round(_size.z));
+        List<Vector3i> startPosition = new ArrayList<>(_startPosition.size());
+        for(Vector3f vec:_startPosition)
+        {
+            startPosition.add(new Vector3i(round(vec.x),round(vec.y),round(vec.z)));
+        }
+        List<Vector3i> endPosition = new ArrayList<>(_endPosition.size());
+        for(Vector3f vec:_endPosition)
+        {
+            endPosition.add(new Vector3i(round(vec.x),round(vec.y),round(vec.z)));
+        }
+        List<Vector3i> obstacle = new ArrayList<>(_obstacle.size());
+        for(Vector3f vec:_obstacle)
+        {
+            obstacle.add(new Vector3i(round(vec.x),round(vec.y),round(vec.z)));
+        }
 
-    public Node(List<Vector3i> startConfiguration, List<Vector3i> endConfiguration, List<Vector3i> obstacleConfiguration){
-        this.agentConfiguration = startConfiguration;
-        this.endConfiguration = endConfiguration;
-        this.obstacleConfiguration = obstacleConfiguration;
-        this.possibleActions = getAvailableActions();
-        this.optimalActions = getOptimalMoves();
-        this.idealAction = findIdealAction();
+        compute(size,startPosition,endPosition,obstacle,result);
     }
 
-    public Node(List<Vector3i> startConfiguration, List<Vector3i> endConfiguration, List<Vector3i> obstacleConfiguration, boolean noAction){
-        this.agentConfiguration = startConfiguration;
-        this.endConfiguration = endConfiguration;
-        this.obstacleConfiguration = obstacleConfiguration;
-        this.possibleActions = getAvailableActions();
-        this.optimalActions = getOptimalMoves();
+    public static synchronized void compute(Vector3i size,List<Vector3i> startConfiguration, List<Vector3i> endConfiguration, List<Vector3i> obstacleConfiguration,List<List<PathFindingAlgorithm.Movement>> result)
+    {
+        System.out.println(startConfiguration);
+        List<List<Vector3i>> possibleActions = getAvailableActions(startConfiguration,obstacleConfiguration);
+        List<List<Vector3i>> optimalActions = getOptimalMoves(startConfiguration,endConfiguration,possibleActions);
+        Action idealAction = findIdealAction(startConfiguration,endConfiguration,obstacleConfiguration,optimalActions,possibleActions);
+        Vector3i pos=startConfiguration.get(idealAction.getAgentIndex()).add(idealAction.getAction());
+        Movement mov=new Movement(idealAction.getAgentIndex(),new Vector3f(pos.x,pos.y,pos.z));
+        result.add(Arrays.asList(mov));
+        compute(size,startConfiguration,endConfiguration,obstacleConfiguration,result);
     }
 
-    public Node(Node node){
-
-        this.agentConfiguration = node.getAgentConfiguration();
-        this.endConfiguration = node.getEndConfiguration();
-        this.obstacleConfiguration = node.getObstacleConfiguration();
-        this.possibleActions = node.getActions();
-        this.optimalActions = node.getOptimalActions();
-        this.idealAction = node.getIdealAction();
-    }
-
-    public Node(){}
-
-    private Action findIdealAction(){
+    private static Action findIdealAction(List<Vector3i> agentConfiguration,List<Vector3i> endConfiguration,List<Vector3i> obstacleConfiguration,List<List<Vector3i>> optimalActions,List<List<Vector3i>> possibleActions){
 
         Action idealAction = null;
 
@@ -112,12 +113,12 @@ public class Node {
         }
 
         if(checker){
-            System.out.println("entered 1");
+            //System.out.println("entered 1");
             for(int i=0; i<optimalActions.get(dummyIndex).size(); i++){
 
                 Action testingAction = new Action(optimalActions.get(dummyIndex).get(i), dummyIndex);
 
-                idealAction = simulate(testingAction);
+                idealAction = simulate(testingAction,agentConfiguration,endConfiguration,obstacleConfiguration);
 
                 if(idealAction == null)
                     continue;
@@ -125,14 +126,14 @@ public class Node {
                     return idealAction;
             }
         } else {
-            System.out.println("entered 2");
+            //System.out.println("entered 2");
             int randomIndex = ((int) (Math.random())*agentConfiguration.size());
 
             for(int i=0; i<optimalActions.get(randomIndex).size(); i++){
 
                 Action testingAction = new Action(optimalActions.get(randomIndex).get(i), randomIndex);
 
-                idealAction = simulate(testingAction);
+                idealAction = simulate(testingAction,agentConfiguration,endConfiguration,obstacleConfiguration);
 
                 if(idealAction == null){
 
@@ -146,7 +147,7 @@ public class Node {
 
 
         if(idealAction == null){
-            System.out.println("entered 3");
+            //System.out.println("entered 3");
             try{
 
                 int randomIndex = (int) (Math.random()*agentConfiguration.size());
@@ -159,19 +160,19 @@ public class Node {
 
             } catch(IndexOutOfBoundsException e){
                 //System.out.println("No possible optimal actions");
-                return null;
+                //return null;
             } catch(NullPointerException e){
                 //System.out.println("No possible optimal actions");
             }
         }
 
         while(idealAction == null){
-            System.out.println("entered 4");
+            //System.out.println("entered 4");
             for(int i=0; i<agentConfiguration.size(); i++){
 
-                for(int j=0; j<optimalActions.get(i).size(); j++){
+                for(int j=0; j<possibleActions.get(i).size(); j++){
 
-                    Action action = new Action(optimalActions.get(i).get(j), i);
+                    Action action = new Action(possibleActions.get(i).get(j), i);
 
                     return action;
                 }
@@ -182,7 +183,7 @@ public class Node {
     }
     //must check both obstacle and agent cases to work properly!!!
     //WORKS FOR AGENTS!!!
-    protected List<List<Vector3i>> getAvailableActions(){
+    public static List<List<Vector3i>> getAvailableActions(List<Vector3i> agentConfiguration,List<Vector3i> obstacleConfiguration){
 
         List<List<Vector3i>> possibleActions = new ArrayList<>();
 
@@ -190,29 +191,29 @@ public class Node {
 
             List<Vector3i> actions = new ArrayList<>();
 
-            if(checkTop(agentConfiguration.get(i))){
+            if(checkTop(agentConfiguration.get(i),agentConfiguration)){
                 possibleActions.add(actions);
                 continue;
             } else{
 
-                applyGravity(agentConfiguration.get(i));
+                applyGravity(agentConfiguration.get(i),agentConfiguration,obstacleConfiguration);
 
-                if(checkBottom(agentConfiguration.get(i))){
+                if(checkBottom(agentConfiguration.get(i),agentConfiguration)){
 
-                    if(checkFront(agentConfiguration.get(i))){
+                    if(checkFront(agentConfiguration.get(i),agentConfiguration)){
 
-                        if(!checkFrontTop(agentConfiguration.get(i))){
+                        if(!checkFrontTop(agentConfiguration.get(i),agentConfiguration)){
                             actions.add(new Vector3i(0,1,1));
                         }
 
                     } else{
 
 
-                        if(!checkFrontObstacle(agentConfiguration.get(i))){
+                        if(!checkFrontObstacle(agentConfiguration.get(i),obstacleConfiguration)){
 
-                            if(!checkFrontBottom(agentConfiguration.get(i))){
+                            if(!checkFrontBottom(agentConfiguration.get(i),agentConfiguration)){
 
-                                if(!checkFrontBottomObstacle(agentConfiguration.get(i))){
+                                if(!checkFrontBottomObstacle(agentConfiguration.get(i),obstacleConfiguration)){
                                     actions.add(new Vector3i(0,-1,1));
                                 }
                             } else {
@@ -221,19 +222,19 @@ public class Node {
                         }
                     }
 
-                    if(checkRear(agentConfiguration.get(i))){
+                    if(checkRear(agentConfiguration.get(i),agentConfiguration)){
 
-                        if(!checkRearTop(agentConfiguration.get(i))){
+                        if(!checkRearTop(agentConfiguration.get(i),agentConfiguration)){
                             actions.add(new Vector3i(0,1,-1));
                         }
 
                     } else {
 
-                        if(!checkRearObstacle(agentConfiguration.get(i))){
+                        if(!checkRearObstacle(agentConfiguration.get(i),obstacleConfiguration)){
 
-                            if(!checkRearBottom(agentConfiguration.get(i))){
+                            if(!checkRearBottom(agentConfiguration.get(i),agentConfiguration)){
 
-                                if(!checkRearBottomObstacle(agentConfiguration.get(i))){
+                                if(!checkRearBottomObstacle(agentConfiguration.get(i),agentConfiguration)){
                                     actions.add(new Vector3i(0,-1,-1));
 
                                 }
@@ -243,18 +244,18 @@ public class Node {
                         }
                     }
 
-                    if(checkLeft(agentConfiguration.get(i))){
+                    if(checkLeft(agentConfiguration.get(i),agentConfiguration)){
 
-                        if(!checkLeftTop(agentConfiguration.get(i))){
+                        if(!checkLeftTop(agentConfiguration.get(i),agentConfiguration)){
                             actions.add(new Vector3i(-1,1,0));
                         }
                     } else {
 
-                        if(!checkLeftObstacle(agentConfiguration.get(i))){
+                        if(!checkLeftObstacle(agentConfiguration.get(i),obstacleConfiguration)){
 
-                            if(!checkLeftBottom(agentConfiguration.get(i))){
+                            if(!checkLeftBottom(agentConfiguration.get(i),agentConfiguration)){
 
-                                if(!checkLeftBottomObstacle(agentConfiguration.get(i))){
+                                if(!checkLeftBottomObstacle(agentConfiguration.get(i),obstacleConfiguration)){
                                     actions.add(new Vector3i(-1,-1,0));
                                 }
                             } else {
@@ -264,18 +265,18 @@ public class Node {
                         }
                     }
 
-                    if(checkRight(agentConfiguration.get(i))){
+                    if(checkRight(agentConfiguration.get(i),agentConfiguration)){
 
-                        if(!checkRightTop(agentConfiguration.get(i))){
+                        if(!checkRightTop(agentConfiguration.get(i),agentConfiguration)){
                             actions.add(new Vector3i(1,1,0));
                         }
                     } else {
 
-                        if(!checkRightObstacle(agentConfiguration.get(i))){
+                        if(!checkRightObstacle(agentConfiguration.get(i),agentConfiguration)){
 
-                            if(!checkRightBottom(agentConfiguration.get(i))){
+                            if(!checkRightBottom(agentConfiguration.get(i),agentConfiguration)){
 
-                                if(!checkRightBottomObstacle(agentConfiguration.get(i))){
+                                if(!checkRightBottomObstacle(agentConfiguration.get(i),agentConfiguration)){
                                     actions.add(new Vector3i(1,-1,0));
                                 }
                             } else {
@@ -285,31 +286,31 @@ public class Node {
                     }
                 } else {
 
-                    if(!checkBottomObstacle(agentConfiguration.get(i))){
-                        if(checkFront(agentConfiguration.get(i))){
+                    if(!checkBottomObstacle(agentConfiguration.get(i),agentConfiguration)){
+                        if(checkFront(agentConfiguration.get(i),agentConfiguration)){
 
-                            if(!checkFrontTop(agentConfiguration.get(i))){
+                            if(!checkFrontTop(agentConfiguration.get(i),agentConfiguration)){
                                 actions.add(new Vector3i(0,1,1));
                             }
                         }
 
-                        if(checkRear(agentConfiguration.get(i))){
+                        if(checkRear(agentConfiguration.get(i),agentConfiguration)){
 
-                            if(!checkRearTop(agentConfiguration.get(i))){
+                            if(!checkRearTop(agentConfiguration.get(i),agentConfiguration)){
                                 actions.add(new Vector3i(0,1,-1));
                             }
                         }
 
-                        if(checkLeft(agentConfiguration.get(i))){
+                        if(checkLeft(agentConfiguration.get(i),agentConfiguration)){
 
-                            if(!checkLeftTop(agentConfiguration.get(i))){
+                            if(!checkLeftTop(agentConfiguration.get(i),agentConfiguration)){
                                 actions.add(new Vector3i(-1,1,0));
                             }
                         }
 
-                        if(checkRight(agentConfiguration.get(i))){
+                        if(checkRight(agentConfiguration.get(i),agentConfiguration)){
 
-                            if(!checkRightTop(agentConfiguration.get(i))){
+                            if(!checkRightTop(agentConfiguration.get(i),agentConfiguration)){
                                 actions.add(new Vector3i(1,1,0));
                             }
                         }
@@ -324,7 +325,7 @@ public class Node {
     }
 
     //WORKS FOR DIAGONAL THUS FAR
-    protected List<List<Vector3i>> getOptimalMoves(){
+    protected static List<List<Vector3i>> getOptimalMoves(List<Vector3i> agentConfiguration,List<Vector3i> endConfiguration,List<List<Vector3i>> possibleActions){
 
         Vector3i rearDown = new Vector3i(0,-1,-1);
         Vector3i rear = new Vector3i(0,0,-1);
@@ -351,39 +352,39 @@ public class Node {
 
                     if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
 
-                        for(int j=0; j<getActions().get(i).size(); j++){
+                        for(int j=0; j<possibleActions.get(i).size(); j++){
 
-                            if(getActions().get(i).get(j).equals(rearDown))
+                            if(possibleActions.get(i).get(j).equals(rearDown))
                                 moves.add(rearDown);
-                            else if(getActions().get(i).get(j).equals(rear))
+                            else if(possibleActions.get(i).get(j).equals(rear))
                                 moves.add(rear);
-                            else if(getActions().get(i).get(j).equals(rearUp))
+                            else if(possibleActions.get(i).get(j).equals(rearUp))
                                 moves.add(rearUp);
 
                         }
                     }
                     else if(agentConfiguration.get(i).y == endConfiguration.get(i).y){
 
-                        for(int j=0; j<getActions().get(i).size(); j++){
+                        for(int j=0; j<possibleActions.get(i).size(); j++){
 
-                            if(getActions().get(i).get(j).equals(rear))
+                            if(possibleActions.get(i).get(j).equals(rear))
                                 moves.add(rear);
-                            else if(getActions().get(i).get(j).equals(rearUp))
+                            else if(possibleActions.get(i).get(j).equals(rearUp))
                                 moves.add(rearUp);
-                            else if(getActions().get(i).get(j).equals(rearDown))
+                            else if(possibleActions.get(i).get(j).equals(rearDown))
                                 moves.add(rearDown);
 
 
                         }
                     } else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
 
-                        for(int j=0; j<getActions().get(i).size(); j++){
+                        for(int j=0; j<possibleActions.get(i).size(); j++){
 
-                            if(getActions().get(i).get(j).equals(rearUp))
+                            if(possibleActions.get(i).get(j).equals(rearUp))
                                 moves.add(rearUp);
-                            else if(getActions().get(i).get(j).equals(rear))
+                            else if(possibleActions.get(i).get(j).equals(rear))
                                 moves.add(rear);
-                            else if(getActions().get(i).get(j).equals(rearDown))
+                            else if(possibleActions.get(i).get(j).equals(rearDown))
                                 moves.add(rearDown);
                         }
 
@@ -394,38 +395,38 @@ public class Node {
 
                     if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
 
-                        for(int j=0; j<getActions().get(i).size(); j++){
+                        for(int j=0; j<possibleActions.get(i).size(); j++){
 
-                            if(getActions().get(i).get(j).equals(frontDown))
+                            if(possibleActions.get(i).get(j).equals(frontDown))
                                 moves.add(frontDown);
-                            else if(getActions().get(i).get(j).equals(front))
+                            else if(possibleActions.get(i).get(j).equals(front))
                                 moves.add(front);
-                            else if(getActions().get(i).get(j).equals(frontDown))
+                            else if(possibleActions.get(i).get(j).equals(frontDown))
                                 moves.add(frontDown);
                         }
                     }
                     else if(agentConfiguration.get(i).y == endConfiguration.get(i).y){
 
-                        for(int j=0; j<getActions().get(i).size(); j++){
+                        for(int j=0; j<possibleActions.get(i).size(); j++){
 
-                            if(getActions().get(i).get(j).equals(front))
+                            if(possibleActions.get(i).get(j).equals(front))
                                 moves.add(front);
-                            else if(getActions().get(i).get(j).equals(frontUp))
+                            else if(possibleActions.get(i).get(j).equals(frontUp))
                                 moves.add(frontUp);
-                            else if(getActions().get(i).get(j).equals(frontDown))
+                            else if(possibleActions.get(i).get(j).equals(frontDown))
                                 moves.add(frontDown);
-                            else if(getActions().get(i).get(j).equals(leftUp))
+                            else if(possibleActions.get(i).get(j).equals(leftUp))
                                 moves.add(leftUp);
                         }
                     } else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
 
-                        for(int j=0; j<getActions().get(i).size(); j++){
+                        for(int j=0; j<possibleActions.get(i).size(); j++){
 
-                            if(getActions().get(i).get(j).equals(frontUp))
+                            if(possibleActions.get(i).get(j).equals(frontUp))
                                 moves.add(frontUp);
-                            else if(getActions().get(i).get(j).equals(front))
+                            else if(possibleActions.get(i).get(j).equals(front))
                                 moves.add(front);
-                            else if(getActions().get(i).get(j).equals(frontDown))
+                            else if(possibleActions.get(i).get(j).equals(frontDown))
                                 moves.add(frontDown);
                         }
 
@@ -439,36 +440,36 @@ public class Node {
 
                     if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
 
-                        for(int j=0; j<getActions().get(i).size(); j++){
+                        for(int j=0; j<possibleActions.get(i).size(); j++){
 
-                            if(getActions().get(i).get(j).equals(leftDown))
+                            if(possibleActions.get(i).get(j).equals(leftDown))
                                 moves.add(leftDown);
-                            else if(getActions().get(i).get(j).equals(left))
+                            else if(possibleActions.get(i).get(j).equals(left))
                                 moves.add(left);
-                            else if(getActions().get(i).get(j).equals(leftUp))
+                            else if(possibleActions.get(i).get(j).equals(leftUp))
                                 moves.add(leftUp);
                         }
                     }
                     else if(agentConfiguration.get(i).y == endConfiguration.get(i).y){
 
-                        for(int j=0; j<getActions().get(i).size(); j++){
+                        for(int j=0; j<possibleActions.get(i).size(); j++){
 
-                            if(getActions().get(i).get(j).equals(left))
+                            if(possibleActions.get(i).get(j).equals(left))
                                 moves.add(left);
-                            else if(getActions().get(i).get(j).equals(leftUp))
+                            else if(possibleActions.get(i).get(j).equals(leftUp))
                                 moves.add(leftUp);
-                            else if(getActions().get(i).get(j).equals(leftDown))
+                            else if(possibleActions.get(i).get(j).equals(leftDown))
                                 moves.add(leftDown);
                         }
                     } else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
 
-                        for(int j=0; j<getActions().get(i).size(); j++){
+                        for(int j=0; j<possibleActions.get(i).size(); j++){
 
-                            if(getActions().get(i).get(j).equals(leftUp))
+                            if(possibleActions.get(i).get(j).equals(leftUp))
                                 moves.add(leftUp);
-                            else if(getActions().get(i).get(j).equals(left))
+                            else if(possibleActions.get(i).get(j).equals(left))
                                 moves.add(left);
-                            else if(getActions().get(i).get(j).equals(leftDown))
+                            else if(possibleActions.get(i).get(j).equals(leftDown))
                                 moves.add(leftDown);
                         }
 
@@ -479,36 +480,36 @@ public class Node {
 
                     if(agentConfiguration.get(i).y > endConfiguration.get(i).y){
 
-                        for(int j=0; j<getActions().get(i).size(); j++){
+                        for(int j=0; j<possibleActions.get(i).size(); j++){
 
-                            if(getActions().get(i).get(j).equals(rightDown))
+                            if(possibleActions.get(i).get(j).equals(rightDown))
                                 moves.add(rightDown);
-                            else if(getActions().get(i).get(j).equals(right))
+                            else if(possibleActions.get(i).get(j).equals(right))
                                 moves.add(right);
-                            else if(getActions().get(i).get(j).equals(rightUp))
+                            else if(possibleActions.get(i).get(j).equals(rightUp))
                                 moves.add(rightUp);
                         }
                     }
                     else if(agentConfiguration.get(i).y == endConfiguration.get(i).y){
 
-                        for(int j=0; j<getActions().get(i).size(); j++){
+                        for(int j=0; j<possibleActions.get(i).size(); j++){
 
-                            if(getActions().get(i).get(j).equals(right))
+                            if(possibleActions.get(i).get(j).equals(right))
                                 moves.add(right);
-                            else if(getActions().get(i).get(j).equals(rightUp))
+                            else if(possibleActions.get(i).get(j).equals(rightUp))
                                 moves.add(rightUp);
-                            else if(getActions().get(i).get(j).equals(rightDown))
+                            else if(possibleActions.get(i).get(j).equals(rightDown))
                                 moves.add(rightDown);
                         }
                     } else if(agentConfiguration.get(i).y < endConfiguration.get(i).y){
 
-                        for(int j=0; j<getActions().get(i).size(); j++){
+                        for(int j=0; j<possibleActions.get(i).size(); j++){
 
-                            if(getActions().get(i).get(j).equals(rightUp))
+                            if(possibleActions.get(i).get(j).equals(rightUp))
                                 moves.add(rightUp);
-                            else if(getActions().get(i).get(j).equals(right))
+                            else if(possibleActions.get(i).get(j).equals(right))
                                 moves.add(right);
-                            else if(getActions().get(i).get(j).equals(rightDown))
+                            else if(possibleActions.get(i).get(j).equals(rightDown))
                                 moves.add(rightDown);
                         }
 
@@ -869,20 +870,20 @@ public class Node {
         return optimalMoves;
     }
 
-    private Action simulate(Action action){
+    private static Action simulate(Action action,List<Vector3i> agentConfiguration ,List<Vector3i> endConfiguration,List<Vector3i> obstacleConfiguration){
 
         List<Vector3i> dummy = new ArrayList<>();
 
         for(int i=0; i<agentConfiguration.size(); i++){
 
-            dummy.add(agentConfiguration.get(i));
+            dummy.add(new Vector3i(agentConfiguration.get(i)));
         }
 
         dummy.get(action.getAgentIndex()).add(action.getAction());
 
-        SimulationNode simulationState = new SimulationNode(dummy,endConfiguration,obstacleConfiguration);
+        //SimulationNode simulationState = new SimulationNode(dummy,endConfiguration,obstacleConfiguration);
 
-        if(simulationState.agentsAreTogether(dummy)){
+        if(agentsAreTogetherExt(dummy)){
             return action;
         }
 
@@ -890,84 +891,84 @@ public class Node {
 
     }
 
-    protected boolean agentsAreTogether(List<Vector3i> agentConfiguration){
+    protected static boolean agentsAreTogether(List<Vector3i> agentConfiguration){
 
         boolean[] checker = new boolean[agentConfiguration.size()];
         boolean finalCheck = true;
 
         for(int i=0; i<checker.length; i++){
 
-            if(checkBottom(agentConfiguration.get(i)) && checkFront(agentConfiguration.get(i))){
+            if(checkBottom(agentConfiguration.get(i),agentConfiguration) && checkFront(agentConfiguration.get(i),agentConfiguration)){
                 checker[i] = true;
                 continue;
             }
 
-            if(checkBottom(agentConfiguration.get(i)) && checkRear(agentConfiguration.get(i))){
+            if(checkBottom(agentConfiguration.get(i),agentConfiguration) && checkRear(agentConfiguration.get(i),agentConfiguration)){
                 checker[i] = true;
                 continue;
             }
 
-            if(checkBottom(agentConfiguration.get(i)) && checkLeft(agentConfiguration.get(i))){
+            if(checkBottom(agentConfiguration.get(i),agentConfiguration) && checkLeft(agentConfiguration.get(i),agentConfiguration)){
                 checker[i] = true;
                 continue;
             }
 
-            if(checkBottom(agentConfiguration.get(i)) && checkRight(agentConfiguration.get(i))){
+            if(checkBottom(agentConfiguration.get(i),agentConfiguration) && checkRight(agentConfiguration.get(i),agentConfiguration)){
                 checker[i] = true;
                 continue;
             }
 
-            if(checkTop(agentConfiguration.get(i)) && checkRear(agentConfiguration.get(i))){
+            if(checkTop(agentConfiguration.get(i),agentConfiguration) && checkRear(agentConfiguration.get(i),agentConfiguration)){
                 checker[i] = true;
                 continue;
             }
 
-            if(checkTop(agentConfiguration.get(i)) && checkLeft(agentConfiguration.get(i))){
+            if(checkTop(agentConfiguration.get(i),agentConfiguration) && checkLeft(agentConfiguration.get(i),agentConfiguration)){
                 checker[i] = true;
                 continue;
             }
 
-            if(checkTop(agentConfiguration.get(i)) && checkRight(agentConfiguration.get(i))){
+            if(checkTop(agentConfiguration.get(i),agentConfiguration) && checkRight(agentConfiguration.get(i),agentConfiguration)){
                 checker[i] = true;
                 continue;
             }
 
-            if(checkTop(agentConfiguration.get(i)) && checkFront(agentConfiguration.get(i))){
+            if(checkTop(agentConfiguration.get(i),agentConfiguration) && checkFront(agentConfiguration.get(i),agentConfiguration)){
                 checker[i] = true;
                 continue;
             }
 
-            if(checkLeft(agentConfiguration.get(i)) && checkRight(agentConfiguration.get(i))){
+            if(checkLeft(agentConfiguration.get(i),agentConfiguration) && checkRight(agentConfiguration.get(i),agentConfiguration)){
                 checker[i] = true;
                 continue;
             }
 
-            if(checkFront(agentConfiguration.get(i)) && checkRear(agentConfiguration.get(i))){
+            if(checkFront(agentConfiguration.get(i),agentConfiguration) && checkRear(agentConfiguration.get(i),agentConfiguration)){
                 checker[i] = true;
                 continue;
             }
 
-            if(checkLeft(agentConfiguration.get(i)) && checkRight(agentConfiguration.get(i))){
+            if(checkLeft(agentConfiguration.get(i),agentConfiguration) && checkRight(agentConfiguration.get(i),agentConfiguration)){
                 checker[i] = true;
                 continue;
             }
 
-            if(checkLeft(agentConfiguration.get(i)) && checkFront(agentConfiguration.get(i))){
+            if(checkLeft(agentConfiguration.get(i),agentConfiguration) && checkFront(agentConfiguration.get(i),agentConfiguration)){
                 checker[i] = true;
                 continue;
             }
 
-            if(checkLeft(agentConfiguration.get(i)) && checkRear(agentConfiguration.get(i))){
+            if(checkLeft(agentConfiguration.get(i),agentConfiguration) && checkRear(agentConfiguration.get(i),agentConfiguration)){
                 checker[i] = true;
                 continue;
             }
 
-            if(checkRight(agentConfiguration.get(i)) && checkFront(agentConfiguration.get(i))){
+            if(checkRight(agentConfiguration.get(i),agentConfiguration) && checkFront(agentConfiguration.get(i),agentConfiguration)){
                 checker[i] = true;
                 continue;
             }
 
-            if(checkRight(agentConfiguration.get(i)) && checkRear(agentConfiguration.get(i))){
+            if(checkRight(agentConfiguration.get(i),agentConfiguration) && checkRear(agentConfiguration.get(i),agentConfiguration)){
                 checker[i] = true;
                 continue;
             }
@@ -978,32 +979,32 @@ public class Node {
 
             if(checker[i] == false){
 
-                if(checkTop(agentConfiguration.get(i))){
+                if(checkTop(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkBottom(agentConfiguration.get(i))){
+                if(checkBottom(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkFront(agentConfiguration.get(i))){
+                if(checkFront(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkRear(agentConfiguration.get(i))){
+                if(checkRear(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkLeft(agentConfiguration.get(i))){
+                if(checkLeft(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkRight(agentConfiguration.get(i))){
+                if(checkRight(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
@@ -1021,7 +1022,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkFront(Vector3i agent){
+    private static boolean checkFront(Vector3i agent, List<Vector3i> agentConfiguration){
 
         for(int i=0; i<agentConfiguration.size(); i++){
 
@@ -1037,7 +1038,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkFrontObstacle(Vector3i agent){
+    private static boolean checkFrontObstacle(Vector3i agent,List<Vector3i> obstacleConfiguration){
 
         for(int i=0; i<obstacleConfiguration.size(); i++){
 
@@ -1053,7 +1054,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkRear(Vector3i agent){
+    private static boolean checkRear(Vector3i agent,List<Vector3i> agentConfiguration){
 
         for(int i=0; i<agentConfiguration.size(); i++){
 
@@ -1069,7 +1070,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkRearObstacle(Vector3i agent){
+    private static boolean checkRearObstacle(Vector3i agent,List<Vector3i> obstacleConfiguration){
 
         for(int i=0; i<obstacleConfiguration.size(); i++){
 
@@ -1085,7 +1086,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkRight(Vector3i agent){
+    private static boolean checkRight(Vector3i agent,List<Vector3i> agentConfiguration){
 
         for(int i=0; i<agentConfiguration.size(); i++){
 
@@ -1101,7 +1102,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkRightObstacle(Vector3i agent){
+    private static boolean checkRightObstacle(Vector3i agent,List<Vector3i> obstacleConfiguration){
 
         for(int i=0; i<obstacleConfiguration.size(); i++){
 
@@ -1117,7 +1118,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkLeft(Vector3i agent){
+    private static boolean checkLeft(Vector3i agent,List<Vector3i> agentConfiguration){
 
         for(int i=0; i<agentConfiguration.size(); i++){
 
@@ -1133,7 +1134,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkLeftObstacle(Vector3i agent){
+    private static boolean checkLeftObstacle(Vector3i agent,List<Vector3i> obstacleConfiguration){
 
         for(int i=0; i<obstacleConfiguration.size(); i++){
 
@@ -1149,7 +1150,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkTop(Vector3i agent){
+    private static boolean checkTop(Vector3i agent,List<Vector3i> agentConfiguration){
 
         for(int i=0; i<agentConfiguration.size(); i++){
 
@@ -1165,7 +1166,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkBottom(Vector3i agent){
+    private static boolean checkBottom(Vector3i agent,List<Vector3i> agentConfiguration){
 
         for(int i=0; i<agentConfiguration.size(); i++){
 
@@ -1180,7 +1181,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkBottomObstacle(Vector3i agent){
+    private static boolean checkBottomObstacle(Vector3i agent,List<Vector3i> obstacleConfiguration){
 
         for(int i=0; i<obstacleConfiguration.size(); i++){
 
@@ -1196,7 +1197,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkFrontTop(Vector3i agent){
+    private static boolean checkFrontTop(Vector3i agent,List<Vector3i> agentConfiguration){
 
         for(int i=0; i<agentConfiguration.size(); i++){
 
@@ -1212,7 +1213,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkRearTop(Vector3i agent){
+    private static boolean checkRearTop(Vector3i agent,List<Vector3i> agentConfiguration){
 
         for(int i=0; i<agentConfiguration.size(); i++){
 
@@ -1230,7 +1231,7 @@ public class Node {
 
 
     //WORKS
-    private boolean checkRightTop(Vector3i agent){
+    private static boolean checkRightTop(Vector3i agent,List<Vector3i> agentConfiguration){
 
         for(int i=0; i<agentConfiguration.size(); i++){
 
@@ -1247,7 +1248,7 @@ public class Node {
 
 
     //WORKS
-    private boolean checkLeftTop(Vector3i agent){
+    private static boolean checkLeftTop(Vector3i agent,List<Vector3i> agentConfiguration){
 
         for(int i=0; i<agentConfiguration.size(); i++){
 
@@ -1264,7 +1265,7 @@ public class Node {
 
 
     //WORKS
-    private boolean checkFrontBottom(Vector3i agent){
+    private static boolean checkFrontBottom(Vector3i agent,List<Vector3i> agentConfiguration){
 
         for(int i=0; i<agentConfiguration.size(); i++){
 
@@ -1280,7 +1281,7 @@ public class Node {
     }
 
     //WORKS!!! (small bug in case two agents have to fall down on one another, they remain in the air)
-    private void applyGravity(Vector3i agent){
+    private static void applyGravity(Vector3i agent,List<Vector3i> agentConfiguration,List<Vector3i> obstacleConfiguration){
 
         int dummy = -1;
         int index = -1;
@@ -1345,7 +1346,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkFrontBottomObstacle(Vector3i agent){
+    private static boolean checkFrontBottomObstacle(Vector3i agent,List<Vector3i> obstacleConfiguration){
 
 
         for(int i=0; i<obstacleConfiguration.size(); i++){
@@ -1364,7 +1365,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkRearBottom(Vector3i agent){
+    private static boolean checkRearBottom(Vector3i agent, List<Vector3i> agentConfiguration){
 
         boolean flag = false;
         int index = 0;
@@ -1384,7 +1385,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkRearBottomObstacle(Vector3i agent){
+    private static boolean checkRearBottomObstacle(Vector3i agent, List<Vector3i> obstacleConfiguration){
 
         for(int i=0; i<obstacleConfiguration.size(); i++){
 
@@ -1400,7 +1401,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkRightBottom(Vector3i agent){
+    private static boolean checkRightBottom(Vector3i agent,List<Vector3i> agentConfiguration){
 
         for(int i=0; i<agentConfiguration.size(); i++){
 
@@ -1419,7 +1420,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkRightBottomObstacle(Vector3i agent){
+    private static boolean checkRightBottomObstacle(Vector3i agent,List<Vector3i> obstacleConfiguration){
 
         int index = 0;
         int dummy = 0;
@@ -1440,7 +1441,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkLeftBottom(Vector3i agent){
+    private static boolean checkLeftBottom(Vector3i agent,List<Vector3i> agentConfiguration){
 
         for(int i=0; i<agentConfiguration.size(); i++){
 
@@ -1456,7 +1457,7 @@ public class Node {
     }
 
     //WORKS
-    private boolean checkLeftBottomObstacle(Vector3i agent){
+    private static boolean checkLeftBottomObstacle(Vector3i agent,List<Vector3i> obstacleConfiguration){
 
         for(int i=0; i<obstacleConfiguration.size(); i++){
 
@@ -1471,60 +1472,34 @@ public class Node {
         return false;
     }
 
-    public List<Vector3i> getAgentConfiguration() {
-        return agentConfiguration;
-    }
+    //public List<Vector3i> getAgentConfiguration() {return agentConfiguration;}
 
-    public void setAgentConfiguration(List<Vector3i> agentConfiguration) {
-        this.agentConfiguration = agentConfiguration;
-    }
+    //public void setAgentConfiguration(List<Vector3i> agentConfiguration) {this.agentConfiguration = agentConfiguration;}
 
-    public List<Vector3i> getEndConfiguration() {
-        return endConfiguration;
-    }
+    //public List<Vector3i> getEndConfiguration() {return endConfiguration;}
 
-    public void setEndConfiguration(List<Vector3i> endConfiguration) {
-        this.endConfiguration = endConfiguration;
-    }
+    //public void setEndConfiguration(List<Vector3i> endConfiguration) {this.endConfiguration = endConfiguration;}
 
-    public List<Vector3i> getObstacleConfiguration() {
-        return obstacleConfiguration;
-    }
+    //public List<Vector3i> getObstacleConfiguration() {return obstacleConfiguration;}
 
-    public void setObstacleConfiguration(List<Vector3i> obstacleConfiguration) {
-        this.obstacleConfiguration = obstacleConfiguration;
-    }
+    //public void setObstacleConfiguration(List<Vector3i> obstacleConfiguration) {this.obstacleConfiguration = obstacleConfiguration;}
 
-    public List<List<Vector3i>> getActions() {
-        return possibleActions;
-    }
+    //public List<List<Vector3i>> possibleActions {return possibleActions;}
 
-    public void setActions(List<List<Vector3i>> actions) {
-        this.possibleActions = actions;
-    }
+    //public void setActions(List<List<Vector3i>> actions) {this.possibleActions = actions;}
 
-    public void setPossibleActions(List<List<Vector3i>> possibleActions) {
-        this.possibleActions = possibleActions;
-    }
+    //public void setPossibleActions(List<List<Vector3i>> possibleActions) {this.possibleActions = possibleActions;}
 
 
-    public List<List<Vector3i>> getOptimalActions() {
-        return optimalActions;
-    }
+    //public List<List<Vector3i>> getOptimalActions() {return optimalActions;}
 
-    public void setOptimalActions(List<List<Vector3i>> optimalActions) {
-        this.optimalActions = optimalActions;
-    }
+    //public void setOptimalActions(List<List<Vector3i>> optimalActions) {this.optimalActions = optimalActions;}
 
-    public Action getIdealAction() {
-        return idealAction;
-    }
+    //public Action getIdealAction() {return idealAction;}
 
-    public void setIdealAction(Action idealAction) {
-        this.idealAction = idealAction;
-    }
+    //public void setIdealAction(Action idealAction) {this.idealAction = idealAction;}
 
-    protected class Action{
+    protected static class Action{
 
         private Vector3i action;
         private int agentIndex;
@@ -1562,95 +1537,84 @@ public class Node {
         }
 
     }
-
-    private class SimulationNode extends Node{
-
-        public SimulationNode(List<Vector3i> agentConfiguration, List<Vector3i> endConfiguration, List<Vector3i> obstacleConfiguration){
-            this.agentConfiguration = agentConfiguration;
-            this.endConfiguration = endConfiguration;
-            this.obstacleConfiguration = obstacleConfiguration;
-            this.possibleActions = getAvailableActions();
-            this.optimalActions = getOptimalMoves();
-        }
-
-        protected boolean agentsAreTogether(List<Vector3i> agentConfiguration){
+        protected static boolean agentsAreTogetherExt(List<Vector3i> agentConfiguration){
 
             boolean[] checker = new boolean[agentConfiguration.size()];
             boolean finalCheck = true;
 
             for(int i=0; i<checker.length; i++){
 
-                if(checkBottom(agentConfiguration.get(i)) && checkFront(agentConfiguration.get(i))){
+                if(checkBottom(agentConfiguration.get(i),agentConfiguration) && checkFront(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkBottom(agentConfiguration.get(i)) && checkRear(agentConfiguration.get(i))){
+                if(checkBottom(agentConfiguration.get(i),agentConfiguration) && checkRear(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkBottom(agentConfiguration.get(i)) && checkLeft(agentConfiguration.get(i))){
+                if(checkBottom(agentConfiguration.get(i),agentConfiguration) && checkLeft(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkBottom(agentConfiguration.get(i)) && checkRight(agentConfiguration.get(i))){
+                if(checkBottom(agentConfiguration.get(i),agentConfiguration) && checkRight(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkTop(agentConfiguration.get(i)) && checkRear(agentConfiguration.get(i))){
+                if(checkTop(agentConfiguration.get(i),agentConfiguration) && checkRear(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkTop(agentConfiguration.get(i)) && checkLeft(agentConfiguration.get(i))){
+                if(checkTop(agentConfiguration.get(i),agentConfiguration) && checkLeft(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkTop(agentConfiguration.get(i)) && checkRight(agentConfiguration.get(i))){
+                if(checkTop(agentConfiguration.get(i),agentConfiguration) && checkRight(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkTop(agentConfiguration.get(i)) && checkFront(agentConfiguration.get(i))){
+                if(checkTop(agentConfiguration.get(i),agentConfiguration) && checkFront(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkLeft(agentConfiguration.get(i)) && checkRight(agentConfiguration.get(i))){
+                if(checkLeft(agentConfiguration.get(i),agentConfiguration) && checkRight(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkFront(agentConfiguration.get(i)) && checkRear(agentConfiguration.get(i))){
+                if(checkFront(agentConfiguration.get(i),agentConfiguration) && checkRear(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkLeft(agentConfiguration.get(i)) && checkRight(agentConfiguration.get(i))){
+                if(checkLeft(agentConfiguration.get(i),agentConfiguration) && checkRight(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkLeft(agentConfiguration.get(i)) && checkFront(agentConfiguration.get(i))){
+                if(checkLeft(agentConfiguration.get(i),agentConfiguration) && checkFront(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkLeft(agentConfiguration.get(i)) && checkRear(agentConfiguration.get(i))){
+                if(checkLeft(agentConfiguration.get(i),agentConfiguration) && checkRear(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkRight(agentConfiguration.get(i)) && checkFront(agentConfiguration.get(i))){
+                if(checkRight(agentConfiguration.get(i),agentConfiguration) && checkFront(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
 
-                if(checkRight(agentConfiguration.get(i)) && checkRear(agentConfiguration.get(i))){
+                if(checkRight(agentConfiguration.get(i),agentConfiguration) && checkRear(agentConfiguration.get(i),agentConfiguration)){
                     checker[i] = true;
                     continue;
                 }
@@ -1661,32 +1625,32 @@ public class Node {
 
                 if(checker[i] == false){
 
-                    if(checkTop(agentConfiguration.get(i))){
+                    if(checkTop(agentConfiguration.get(i),agentConfiguration)){
                         checker[i] = true;
                         continue;
                     }
 
-                    if(checkBottom(agentConfiguration.get(i))){
+                    if(checkBottom(agentConfiguration.get(i),agentConfiguration)){
                         checker[i] = true;
                         continue;
                     }
 
-                    if(checkFront(agentConfiguration.get(i))){
+                    if(checkFront(agentConfiguration.get(i),agentConfiguration)){
                         checker[i] = true;
                         continue;
                     }
 
-                    if(checkRear(agentConfiguration.get(i))){
+                    if(checkRear(agentConfiguration.get(i),agentConfiguration)){
                         checker[i] = true;
                         continue;
                     }
 
-                    if(checkLeft(agentConfiguration.get(i))){
+                    if(checkLeft(agentConfiguration.get(i),agentConfiguration)){
                         checker[i] = true;
                         continue;
                     }
 
-                    if(checkRight(agentConfiguration.get(i))){
+                    if(checkRight(agentConfiguration.get(i),agentConfiguration)){
                         checker[i] = true;
                         continue;
                     }
@@ -1702,6 +1666,5 @@ public class Node {
 
             return finalCheck;
         }
-    }
 
 }
