@@ -81,6 +81,6 @@ public class Main
     }
     public static void main(String[] args) throws Exception
     {
-        new Main().run(new AI.MCNew.GoUpModified(),"res\\levels\\1");
+        new Main().run(new GoUp(),"res\\levels\\GoUp\\2");
     }
 }

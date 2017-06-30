@@ -108,6 +108,7 @@ public class BFS implements PathFindingAlgorithm
             finish:
             while(true)
             {
+                System.out.println("size "+endPosition.size());
                 Queue<Agent> heads = getHeadPriorityQueue(distance, agents);
                 here:
                 while (heads.size() > 0)

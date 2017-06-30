@@ -277,10 +277,9 @@ public class GoUpModified implements PathFindingAlgorithm
                                             movableAgents.add(a);
                                         }
                                     }
-                                    List<List<Movement>> _result=new LinkedList<>();
-                                    new BFS().compute(agents.get(i), movableAgents, enviroment, configuration.get(i).getEnd(), _result, 0);
-                                    System.out.println("CACCA");
-                                    bfsMovments.set(i,_result);
+                                    //List<List<Movement>> _result=new LinkedList<>();
+                                    //new BFS().compute(agents.get(i), movableAgents, enviroment, configuration.get(i).getEnd(), _result, 0);
+                                    //bfsMovments.set(i,_result);
                                     //return;
                                     //compute(List<Agent<Integer>> agents,List<Agent<Integer>> movableAgents,Array3D<Integer> blocks,List<Vector3i> endPosition,List<List<Movement>> result)
                                 }

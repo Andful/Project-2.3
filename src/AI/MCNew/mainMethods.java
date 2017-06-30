@@ -97,7 +97,7 @@ public class mainMethods {
     	  
     	 // System.out.println(" ");
     	  
-    	  for (int j = 0; j < all.size(); j++){
+    	  for (int j = 0; j < all.size() + 1; j++){
     		  for (int k = 0; k < clusterSizes.length; k++){
     			    
     			  if(clusterSizes[k] == j){
@@ -138,7 +138,7 @@ public class mainMethods {
     	  
     	//  System.out.println(" ");
     	  
-    	  for (int j = 0; j < all.size(); j++){
+    	  for (int j = 0; j < all.size() +1; j++){
     		  for (int k = 0; k < clusterSizesEnd.length; k++){
     			  
     			  if(clusterSizesEnd[k] == j){
@@ -451,7 +451,7 @@ public class mainMethods {
 				
 		}
 			
-			if(all.get(element).getPosition().x == all.get(i).getPosition().x + 1 && 
+			if(all.get(element).getPosition().x == all.get(i).getPosition().x  &&
 					all.get(element).getPosition().y == all.get(i).getPosition().y && 
 					  all.get(element).getPosition().z == all.get(i).getPosition().z - 1){
 				all.get(i).setClusterID(currentCluster);
