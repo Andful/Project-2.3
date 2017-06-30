@@ -1,5 +1,7 @@
 package AI;
 
+import AI.MCNew.Agent;
+import AI.MCNew.Block;
 import Util.Array3D;
 import org.joml.Vector3i;
 
@@ -14,6 +16,46 @@ public class BFS implements PathFindingAlgorithm
     public final static int EMPTY=Integer.MAX_VALUE-2;
     public final static int OBSTACLE=Integer.MAX_VALUE-1;
     public final static int AGENT=Integer.MAX_VALUE;
+
+    public void compute(List<AI.MCNew.Agent> _agents, List<AI.MCNew.Agent> _movableAgents, Array3D<Block> _enviroment, List<Vector3i> end, List<List<Movement>> result,int a)
+    {
+        List<Agent<Integer>> agents=new LinkedList<>();
+        for(AI.MCNew.Agent b:_agents)
+        {
+            agents.add(new Agent<Integer>(b.getID(),b.getPosition()));
+        }
+        List<Agent<Integer>> movableAgents=new LinkedList<>();
+        for(AI.MCNew.Agent b:_movableAgents)
+        {
+            movableAgents.add(new Agent<Integer>(b.getID(),b.getPosition()));
+        }
+        Array3D<Integer> enviroment=new Array3D<>(_enviroment.size());
+        for(int i=0;i<enviroment.size().x;i++)
+        {
+            for (int j = 0; j < enviroment.size().y; j++)
+            {
+                for (int k = 0; k < enviroment.size().z; k++)
+                {
+                    Vector3i pos=new Vector3i(i,j,k);
+                    Block block=_enviroment.get(pos);
+                    if(block.isAgent())
+                    {
+                        enviroment.set(pos,AGENT);
+                    }
+                    else if(block.isObstacle())
+                    {
+                        enviroment.set(pos,OBSTACLE);
+                    }
+                    else if(block.isEmpty())
+                    {
+                        enviroment.set(pos,EMPTY);
+                    }
+                }
+            }
+        }
+        compute(agents,movableAgents,enviroment,end,result);
+    }
+
     public static class Agent<Integer>
     {
         public Agent(Integer id, Vector3i pos)
@@ -76,6 +118,7 @@ public class BFS implements PathFindingAlgorithm
                     while (tails.size() > 0)
                     {
                         Agent tail = tails.remove();
+                        System.out.println(arrivePosition);
                         if (pathFindSingleAgent(tail, arrivePosition, blocks, result))
                         {
                             if(tail.pos.equals(end))

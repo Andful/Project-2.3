@@ -1,7 +1,8 @@
 import AI.BFS;
 import AI.GoUp;
 //import AI.MultiAgentPathFinding.MultiAgent;
-import AI.MC.GoUpModified;
+import AI.MC.*;
+import AI.MCNew.*;
 import AI.Node;
 import AI.PathFindingAlgorithm;
 import GUI.SerialModifier;
@@ -80,30 +81,6 @@ public class Main
     }
     public static void main(String[] args) throws Exception
     {
-        int c=3;
-        List<Vector3f> startConfiguration= new LinkedList<Vector3f>()
-        {
-            {
-                add(new Vector3f(0,0,0));
-                for(int i=1;i<c;i++)
-                {
-                    add(new Vector3f(0,0,i));
-                    add(new Vector3f(i,0,0));
-                }
-            }
-        };
-        List<Vector3f> endConfiguration= new LinkedList<Vector3f>()
-        {
-            {
-                add(new Vector3f(c-1,0,c-1));
-                for(int i=0;i<c-1;i++)
-                {
-                    add(new Vector3f(c-1,0,i));
-                    add(new Vector3f(i,0,c-1));
-                }
-            }
-        };
-        Vector3f size=new Vector3f(c,1,c);
-        new Main().run(new GoUp(),"res\\levels\\1");
+        new Main().run(new AI.MCNew.GoUpModified(),"res\\levels\\1");
     }
 }

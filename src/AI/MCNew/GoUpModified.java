@@ -1,5 +1,6 @@
 package AI.MCNew;
 
+import AI.BFS;
 import AI.PathFindingAlgorithm;
 import Util.Array2D;
 import Util.Array3D;
@@ -219,50 +220,91 @@ public class GoUpModified implements PathFindingAlgorithm
                 }
                 paths.add(path);
                 agents.add(agent);
+
+                for(List<Vector2i> ve:paths)
+                {
+                    System.out.println(ve);
+                }
                 _index++;
             }
         }
         //TODO end condition
+        LinkedList<List<List<Movement>>> bfsMovments=new LinkedList<>();
+        for(startAndEnd sae:configuration)
+        {
+            bfsMovments.add(null);
+        }
         while(true)
         {
+            Array3D<Block> oldEnviroment = (Array3D<Block>)enviroment.clone();
             List<Movement> step=new LinkedList<>();
+            hi:
             for(int i=0;i<configuration.size();i++)
             {
-                Queue<Agent> toBeMoved = getToBeMoved(agents.get(i), paths.get(i));
-                here:
-                while (true)
+                if (bfsMovments.get(i) == null)
                 {
-                    Agent agent = toBeMoved.remove();
-                    List<Vector3i> possibleMove = getPossibleMove(enviroment, agent);
-                    for (Vector3i move : possibleMove)
+                    Queue<Agent> toBeMoved = getToBeMoved(agents.get(i), paths.get(i));
+                    here:
+                    while (true)
                     {
-                        if (new MyComparator(paths.get(i)).compare(agent.pos, move) < 0)
+                        Agent agent = toBeMoved.poll();
+                        if (agent == null)
                         {
-                            step.add(new Movement(agent.id, new Vector3f(move.x, move.y, move.z)));
-                            enviroment.set(agent.pos, new Empty());
-                            enviroment.set(move, agent);
-                            agent.pos = move;
-                            if (enviroment.get(configuration.get(i).getEnd().get(0)).isAgent())
-                            {
-                                configuration.get(i).getEnd().remove(0);
-                                List<Agent> movableAgents = new LinkedList<>();
-                                for (Agent a : agents.get(i))
-                                {
-                                    if (!a.equals(agent))
-                                    {
-                                        movableAgents.add(a);
-                                    }
-                                }
-                                //new BFS().compute(agents.get(i), movableAgents, enviroment, configuration.get(i).getEnd(), result);
-                                return;
-                                //compute(List<Agent<Integer>> agents,List<Agent<Integer>> movableAgents,Array3D<Integer> blocks,List<Vector3i> endPosition,List<List<Movement>> result)
-                            }
-                            break here;
+                            continue hi;
                         }
+                        List<Vector3i> possibleMove = getPossibleMove(enviroment, agent);
+                        for (Vector3i move : possibleMove)
+                        {
+                            Vector3i under = new Vector3i(move.x, move.y - 1, move.z);
+                            if (new MyComparator(paths.get(i)).compare(agent.pos, move) < 0 &&
+                                    !(oldEnviroment.get(move).isAgent() && ((Agent) oldEnviroment.get(move)).clusterID != agent.clusterID) &&
+                                    !(enviroment.isInBound(under) &&
+                                            enviroment.get(under).isAgent() &&
+                                            ((Agent) (enviroment.get(under))).clusterID != agent.clusterID))
+                            {
+                                step.add(new Movement(agent.id, new Vector3f(move.x, move.y, move.z)));
+                                enviroment.set(agent.pos, new Empty());
+                                enviroment.set(move, agent);
+                                agent.pos = move;
+                                if (enviroment.get(configuration.get(i).getEnd().get(0)).isAgent())
+                                {
+                                    configuration.get(i).getEnd().remove(0);
+                                    List<Agent> movableAgents = new LinkedList<>();
+                                    for (Agent a : agents.get(i))
+                                    {
+                                        if (!a.equals(agent))
+                                        {
+                                            movableAgents.add(a);
+                                        }
+                                    }
+                                    List<List<Movement>> _result=new LinkedList<>();
+                                    new BFS().compute(agents.get(i), movableAgents, enviroment, configuration.get(i).getEnd(), _result, 0);
+                                    System.out.println("CACCA");
+                                    bfsMovments.set(i,_result);
+                                    //return;
+                                    //compute(List<Agent<Integer>> agents,List<Agent<Integer>> movableAgents,Array3D<Integer> blocks,List<Vector3i> endPosition,List<List<Movement>> result)
+                                }
+                                break here;
+                            }
+                        }
+                        System.out.println("hi");
+                        //return;
+                        //break;
                     }
                 }
+                else
+                {
+                    List<Movement> move=((LinkedList<List<Movement>>)bfsMovments.get(i)).remove();
+                    for(Movement mov:move)
+                    {
+                        step.add(mov);
+                    }
+                }
+                if (step.size() != 0)
+                {
+                    result.add(step);
+                }
             }
-            result.add(step);
         }
 
 
@@ -332,7 +374,7 @@ public class GoUpModified implements PathFindingAlgorithm
         }
         return result;
     }
-    private static boolean hasAdiacentAgent(Array3D<Agent> enviroment, Agent toMove)
+    private static boolean hasAdiacentAgent(Array3D<Block> enviroment, Agent toMove)
     {
         Vector3i pos=toMove.pos;
         for(int i=-1;i<=1;i+=2)
